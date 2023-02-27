@@ -17,7 +17,8 @@ const morgan = require('morgan');
 const session = require('express-session');
 
 const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo')(session);
+//const MongoStore = require('connect-mongo')(session);
+const MemoryStore = require('memorystore')(session)
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -37,7 +38,7 @@ co(function* () {
     mongoose.set('debug', true);
   }
   const db = yield mongoose.connect(process.env.DB_URI, {
-    useMongoClient: true,
+   // useMongoClient: true,
     /* other options */
   })
 
@@ -70,9 +71,12 @@ co(function* () {
 
   server.use(session({
     secret: secret,
-    store: new MongoStore({ 
-      mongooseConnection: mongoose.connection,
-      ttl: 60 * 60 * 24 * 7 * 2
+   // store: new MongoStore({ 
+   //   mongooseConnection: mongoose.connection,
+   //   ttl: 60 * 60 * 24 * 7 * 2
+   //  }),
+	store: new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
     }),
     resave: false,
     rolling: true,

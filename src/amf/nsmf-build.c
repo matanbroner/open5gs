@@ -69,6 +69,12 @@ ogs_sbi_request_t *amf_nsmf_pdusession_build_create_sm_context(
     }
     SmContextCreateData.is_pdu_session_id = true;
     SmContextCreateData.pdu_session_id = sess->psi;
+	
+    // Matan: add default dnn internet
+    if (sess->dnn == NULL) {
+    	sess->dnn = "internet";
+    }
+
     ogs_expect_or_return_val(sess->dnn, NULL);
     SmContextCreateData.dnn = sess->dnn;
 

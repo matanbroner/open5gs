@@ -24,7 +24,7 @@ logger:
     file: @localstatedir@/log/open5gs/hss.log
 
 hss:
-    freeDiameter: @sysconfdir@/freeDiameter/hss.conf
+    freeDiameter: /home/dhs_epc/open5gs/build/configs/freeDiameter/hss.conf
 
 #    sms_over_ims: "sip:smsc.mnc001.mcc001.3gppnetwork.org:7060;transport=tcp"
 

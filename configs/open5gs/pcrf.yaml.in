@@ -23,7 +23,7 @@ logger:
     file: @localstatedir@/log/open5gs/pcrf.log
 
 pcrf:
-    freeDiameter: @sysconfdir@/freeDiameter/pcrf.conf
+    freeDiameter: /home/dhs_epc/open5gs/build/configs/freeDiameter/pcrf.conf
 
 #
 # parameter:

@@ -157,3 +157,11 @@ void ogs_ngap_ASN_to_5gs_tai(NGAP_TAI_t *tAI, ogs_5gs_tai_t *tai)
     memcpy(&tai->plmn_id, tAI->pLMNIdentity.buf, OGS_PLMN_ID_LEN);
     ogs_asn_OCTET_STRING_to_uint24(&tAI->tAC, &tai->tac);
 }
+
+// Matan
+void ogs_ngap_ip_to_5gs_ip(NGAP_TransportLayerAddress_t *ip, ogs_ip_t *IP){
+    ogs_assert(ip);
+    ogs_assert(IP);
+    // concat 4 instance of uint_8 for one uint_32
+    IP->addr = ip->buf[0] | (ip->buf[1] << 8) | (ip->buf[2] << 16) | (ip->buf[3] << 24);
+}

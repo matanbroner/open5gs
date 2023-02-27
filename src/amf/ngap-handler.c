@@ -27,22 +27,23 @@ static bool served_tai_is_found(amf_gnb_t *gnb)
     int i, j;
     int served_tai_index;
 
-    for (i = 0; i < gnb->num_of_supported_ta_list; i++) {
-        for (j = 0; j < gnb->supported_ta_list[i].num_of_bplmn_list; j++) {
+    for (i = 0; i < gnb->num_of_supported_ta_list; i++)
+    {
+        for (j = 0; j < gnb->supported_ta_list[i].num_of_bplmn_list; j++)
+        {
             ogs_5gs_tai_t tai;
             memcpy(&tai.plmn_id,
-                    &gnb->supported_ta_list[i].bplmn_list[j].plmn_id,
-                        OGS_PLMN_ID_LEN);
+                   &gnb->supported_ta_list[i].bplmn_list[j].plmn_id,
+                   OGS_PLMN_ID_LEN);
             tai.tac.v = gnb->supported_ta_list[i].tac.v;
             served_tai_index = amf_find_served_tai(&tai);
             if (served_tai_index >= 0 &&
-                    served_tai_index < OGS_MAX_NUM_OF_SERVED_TAI) {
+                served_tai_index < OGS_MAX_NUM_OF_SERVED_TAI)
+            {
                 ogs_debug("    TAC[%d]", gnb->supported_ta_list[i].tac.v);
                 ogs_debug("    PLMN_ID[MCC:%d MNC:%d]",
-                    ogs_plmn_id_mcc(&gnb->supported_ta_list[i].
-                        bplmn_list[j].plmn_id),
-                    ogs_plmn_id_mnc(&gnb->supported_ta_list[i].
-                        bplmn_list[j].plmn_id));
+                          ogs_plmn_id_mcc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id),
+                          ogs_plmn_id_mnc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id));
                 ogs_debug("    SERVED_TAI_INDEX[%d]", served_tai_index);
                 return true;
             }
@@ -57,23 +58,23 @@ static bool s_nssai_is_found(amf_gnb_t *gnb)
     int i, j, k;
     ogs_s_nssai_t *s_nssai = NULL;
 
-    for (i = 0; i < gnb->num_of_supported_ta_list; i++) {
-        for (j = 0; j < gnb->supported_ta_list[i].num_of_bplmn_list; j++) {
-            for (k = 0; k < gnb->supported_ta_list[i].
-                                bplmn_list[j].num_of_s_nssai; k++) {
+    for (i = 0; i < gnb->num_of_supported_ta_list; i++)
+    {
+        for (j = 0; j < gnb->supported_ta_list[i].num_of_bplmn_list; j++)
+        {
+            for (k = 0; k < gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai; k++)
+            {
                 s_nssai = amf_find_s_nssai(
                     &gnb->supported_ta_list[i].bplmn_list[j].plmn_id,
                     &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k]);
-                if (s_nssai) {
+                if (s_nssai)
+                {
                     ogs_debug("    PLMN_ID[MCC:%d MNC:%d]",
-                        ogs_plmn_id_mcc(&gnb->supported_ta_list[i].
-                            bplmn_list[j].plmn_id),
-                        ogs_plmn_id_mnc(&gnb->supported_ta_list[i].
-                            bplmn_list[j].plmn_id));
+                              ogs_plmn_id_mcc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id),
+                              ogs_plmn_id_mnc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id));
                     ogs_debug("    S_NSSAI[SST:%d SD:0x%x]",
-                        gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
-                        gnb->supported_ta_list[i].bplmn_list[j].
-                                    s_nssai[k].sd.v);
+                              gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
+                              gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v);
                     return true;
                 }
             }
@@ -88,8 +89,10 @@ static bool maximum_number_of_gnbs_is_reached(void)
     amf_gnb_t *gnb = NULL, *next_gnb = NULL;
     int number_of_gnbs_online = 0;
 
-    ogs_list_for_each_safe(&amf_self()->gnb_list, next_gnb, gnb) {
-        if (gnb->state.ng_setup_success) {
+    ogs_list_for_each_safe(&amf_self()->gnb_list, next_gnb, gnb)
+    {
+        if (gnb->state.ng_setup_success)
+        {
             number_of_gnbs_online++;
         }
     }
@@ -127,9 +130,11 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
     ogs_debug("NGSetupRequest");
 
-    for (i = 0; i < NGSetupRequest->protocolIEs.list.count; i++) {
+    for (i = 0; i < NGSetupRequest->protocolIEs.list.count; i++)
+    {
         ie = NGSetupRequest->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_GlobalRANNodeID:
             GlobalRANNodeID = &ie->value.choice.GlobalRANNodeID;
             break;
@@ -144,31 +149,34 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
         }
     }
 
-    if (!GlobalRANNodeID) {
+    if (!GlobalRANNodeID)
+    {
         ogs_error("No GlobalRANNodeID");
         group = NGAP_Cause_PR_protocol;
         cause = NGAP_CauseProtocol_semantic_error;
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
     globalGNB_ID = GlobalRANNodeID->choice.globalGNB_ID;
-    if (!globalGNB_ID) {
+    if (!globalGNB_ID)
+    {
         ogs_error("No globalGNB_ID");
         group = NGAP_Cause_PR_protocol;
         cause = NGAP_CauseProtocol_semantic_error;
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
-    if (!SupportedTAList) {
+    if (!SupportedTAList)
+    {
         ogs_error("No SupportedTAList");
         group = NGAP_Cause_PR_protocol;
         cause = NGAP_CauseProtocol_semantic_error;
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
@@ -180,76 +188,78 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
     /* Parse Supported TA */
     for (i = 0, gnb->num_of_supported_ta_list = 0;
-            i < SupportedTAList->list.count &&
-            gnb->num_of_supported_ta_list < OGS_MAX_NUM_OF_TAI;
-                i++) {
+         i < SupportedTAList->list.count &&
+         gnb->num_of_supported_ta_list < OGS_MAX_NUM_OF_TAI;
+         i++)
+    {
         NGAP_SupportedTAItem_t *SupportedTAItem = NULL;
 
         SupportedTAItem = (NGAP_SupportedTAItem_t *)
-                SupportedTAList->list.array[i];
-        if (!SupportedTAItem) {
+                              SupportedTAList->list.array[i];
+        if (!SupportedTAItem)
+        {
             ogs_error("No SupportedTAItem");
             group = NGAP_Cause_PR_protocol;
             cause = NGAP_CauseProtocol_semantic_error;
             ogs_assert(OGS_OK ==
-                ngap_send_ng_setup_failure(gnb, group, cause));
+                       ngap_send_ng_setup_failure(gnb, group, cause));
             return;
         }
 
         ogs_asn_OCTET_STRING_to_uint24(&SupportedTAItem->tAC,
-            &gnb->supported_ta_list[i].tac);
+                                       &gnb->supported_ta_list[i].tac);
 
         ogs_debug("    TAC[%d]", gnb->supported_ta_list[i].tac.v);
 
         for (j = 0, gnb->supported_ta_list[i].num_of_bplmn_list = 0;
-                j < SupportedTAItem->broadcastPLMNList.list.count &&
-                gnb->supported_ta_list[i].num_of_bplmn_list <
-                    OGS_MAX_NUM_OF_BPLMN;
-                        j++) {
+             j < SupportedTAItem->broadcastPLMNList.list.count &&
+             gnb->supported_ta_list[i].num_of_bplmn_list <
+                 OGS_MAX_NUM_OF_BPLMN;
+             j++)
+        {
 
             NGAP_BroadcastPLMNItem_t *BroadcastPLMNItem = NULL;
             NGAP_PLMNIdentity_t *pLMNIdentity = NULL;
 
             BroadcastPLMNItem = (NGAP_BroadcastPLMNItem_t *)
-                    SupportedTAItem->broadcastPLMNList.list.array[j];
-            if (!BroadcastPLMNItem) {
+                                    SupportedTAItem->broadcastPLMNList.list.array[j];
+            if (!BroadcastPLMNItem)
+            {
                 ogs_error("No BroadcastPLMNItem");
                 group = NGAP_Cause_PR_protocol;
                 cause = NGAP_CauseProtocol_semantic_error;
                 ogs_assert(OGS_OK ==
-                    ngap_send_ng_setup_failure(gnb, group, cause));
+                           ngap_send_ng_setup_failure(gnb, group, cause));
                 return;
             }
 
-            pLMNIdentity = (NGAP_PLMNIdentity_t *)
-                    &BroadcastPLMNItem->pLMNIdentity;
+            pLMNIdentity = (NGAP_PLMNIdentity_t *)&BroadcastPLMNItem->pLMNIdentity;
             ogs_assert(pLMNIdentity);
 
             memcpy(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id,
-                    pLMNIdentity->buf, sizeof(ogs_plmn_id_t));
+                   pLMNIdentity->buf, sizeof(ogs_plmn_id_t));
             ogs_debug("    PLMN_ID[MCC:%d MNC:%d]",
-                ogs_plmn_id_mcc(&gnb->supported_ta_list[i].
-                    bplmn_list[j].plmn_id),
-                ogs_plmn_id_mnc(&gnb->supported_ta_list[i].
-                    bplmn_list[j].plmn_id));
+                      ogs_plmn_id_mcc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id),
+                      ogs_plmn_id_mnc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id));
 
-            for (k = 0, gnb->supported_ta_list[i].
-                            bplmn_list[j].num_of_s_nssai = 0;
-                    k < BroadcastPLMNItem->tAISliceSupportList.list.count &&
-                    gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai <
-                        OGS_MAX_NUM_OF_SLICE;
-                            k++) {
+            for (k = 0, gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai = 0;
+                 k < BroadcastPLMNItem->tAISliceSupportList.list.count &&
+                 gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai <
+                     OGS_MAX_NUM_OF_SLICE;
+                 k++)
+            {
                 NGAP_SliceSupportItem_t *SliceSupportItem = NULL;
                 NGAP_S_NSSAI_t *s_NSSAI = NULL;
 
                 SliceSupportItem = (NGAP_SliceSupportItem_t *)
-                        BroadcastPLMNItem->tAISliceSupportList.list.array[k];
-                if (!SliceSupportItem) {
+                                       BroadcastPLMNItem->tAISliceSupportList.list.array[k];
+                if (!SliceSupportItem)
+                {
                     ogs_error("No SliceSupportItem");
                     group = NGAP_Cause_PR_protocol;
                     cause = NGAP_CauseProtocol_semantic_error;
                     ogs_assert(OGS_OK ==
-                        ngap_send_ng_setup_failure(gnb, group, cause));
+                               ngap_send_ng_setup_failure(gnb, group, cause));
                     return;
                 }
 
@@ -257,18 +267,21 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
                 ogs_assert(s_NSSAI);
 
                 ogs_asn_OCTET_STRING_to_uint8(&s_NSSAI->sST,
-                    &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst);
-                if (!s_NSSAI->sD) {
+                                              &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst);
+                if (!s_NSSAI->sD)
+                {
                     gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v =
                         OGS_S_NSSAI_NO_SD_VALUE;
-                } else {
+                }
+                else
+                {
                     ogs_asn_OCTET_STRING_to_uint24(s_NSSAI->sD,
-                    &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd);
+                                                   &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd);
                 }
 
                 ogs_debug("    S_NSSAI[SST:%d SD:0x%x]",
-                    gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
-                    gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v);
+                          gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
+                          gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v);
 
                 gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai++;
             }
@@ -279,48 +292,52 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
         gnb->num_of_supported_ta_list++;
     }
 
-    if (maximum_number_of_gnbs_is_reached()) {
+    if (maximum_number_of_gnbs_is_reached())
+    {
         ogs_warn("NG-Setup failure:");
         ogs_warn("    Maximum number of gNBs reached");
         group = NGAP_Cause_PR_misc;
         cause = NGAP_CauseMisc_control_processing_overload;
 
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
-    if (gnb->num_of_supported_ta_list == 0) {
+    if (gnb->num_of_supported_ta_list == 0)
+    {
         ogs_warn("NG-Setup failure:");
         ogs_warn("    No supported TA exist in NG-Setup request");
         group = NGAP_Cause_PR_protocol;
         cause = NGAP_CauseProtocol_message_not_compatible_with_receiver_state;
 
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
-    if (!served_tai_is_found(gnb)) {
+    if (!served_tai_is_found(gnb))
+    {
         ogs_warn("NG-Setup failure:");
         ogs_warn("    Cannot find Served TAI. Check 'amf.tai' configuration");
         group = NGAP_Cause_PR_misc;
         cause = NGAP_CauseMisc_unknown_PLMN_or_SNPN;
 
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
-    if (!s_nssai_is_found(gnb)) {
+    if (!s_nssai_is_found(gnb))
+    {
         ogs_warn("NG-Setup failure:");
         ogs_warn("    Cannot find S_NSSAI. "
-                    "Check 'amf.plmn_support.s_nssai' configuration");
+                 "Check 'amf.plmn_support.s_nssai' configuration");
         group = NGAP_Cause_PR_radioNetwork;
         cause = NGAP_CauseRadioNetwork_slice_not_supported;
 
         ogs_assert(OGS_OK ==
-            ngap_send_ng_setup_failure(gnb, group, cause));
+                   ngap_send_ng_setup_failure(gnb, group, cause));
         return;
     }
 
@@ -328,7 +345,7 @@ void ngap_handle_ng_setup_request(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
     gnb->state.ng_setup_success = true;
     ogs_assert(OGS_OK ==
-        ngap_send_ng_setup_response(gnb));
+               ngap_send_ng_setup_response(gnb));
 }
 
 void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
@@ -346,6 +363,7 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
     NGAP_NAS_PDU_t *NAS_PDU = NULL;
     NGAP_UserLocationInformation_t *UserLocationInformation = NULL;
     NGAP_UserLocationInformationNR_t *UserLocationInformationNR = NULL;
+    NGAP_UserLocationInformationN3IWF_t *UserLocationInformationN3IWF = NULL;
     NGAP_FiveG_S_TMSI_t *FiveG_S_TMSI = NULL;
     NGAP_UEContextRequest_t *UEContextRequest = NULL;
 
@@ -360,9 +378,11 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
     ogs_info("InitialUEMessage");
 
-    for (i = 0; i < InitialUEMessage->protocolIEs.list.count; i++) {
+    for (i = 0; i < InitialUEMessage->protocolIEs.list.count; i++)
+    {
         ie = InitialUEMessage->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -385,23 +405,26 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!RAN_UE_NGAP_ID) {
+    if (!RAN_UE_NGAP_ID)
+    {
         ogs_error("No RAN_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_ran_ue_ngap_id(gnb, *RAN_UE_NGAP_ID);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ran_ue = ran_ue_add(gnb, *RAN_UE_NGAP_ID);
         ogs_assert(ran_ue);
 
         /* Find AMF_UE if 5G-S_TMSI included */
-        if (FiveG_S_TMSI) {
+        if (FiveG_S_TMSI)
+        {
             ogs_nas_5gs_guti_t nas_guti;
             amf_ue_t *amf_ue = NULL;
             uint8_t region;
@@ -413,7 +436,7 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
             /* Use the first configured plmn_id and mme group id */
             ogs_nas_from_plmn_id(&nas_guti.nas_plmn_id,
-                    &amf_self()->served_guami[0].plmn_id);
+                                 &amf_self()->served_guami[0].plmn_id);
             region = amf_self()->served_guami[0].amf_id.region;
 
             /* Getting from 5G-S_TMSI */
@@ -427,80 +450,116 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
             nas_guti.m_tmsi = m_tmsi;
 
             amf_ue = amf_ue_find_by_guti(&nas_guti);
-            if (!amf_ue) {
+            if (!amf_ue)
+            {
                 ogs_info("Unknown UE by 5G-S_TMSI[AMF_ID:0x%x,M_TMSI:0x%x]",
-                    ogs_amf_id_hexdump(&nas_guti.amf_id), nas_guti.m_tmsi);
-            } else {
+                         ogs_amf_id_hexdump(&nas_guti.amf_id), nas_guti.m_tmsi);
+            }
+            else
+            {
                 ogs_info("[%s]    5G-S_TMSI[AMF_ID:0x%x,M_TMSI:0x%x]",
-                        AMF_UE_HAVE_SUCI(amf_ue) ? amf_ue->suci : "Unknown ID",
-                        ogs_amf_id_hexdump(&amf_ue->current.guti.amf_id),
-                        amf_ue->current.guti.m_tmsi);
+                         AMF_UE_HAVE_SUCI(amf_ue) ? amf_ue->suci : "Unknown ID",
+                         ogs_amf_id_hexdump(&amf_ue->current.guti.amf_id),
+                         amf_ue->current.guti.m_tmsi);
                 /* If NAS(amf_ue_t) has already been associated with
                  * older NG(ran_ue_t) context */
-                if (CM_CONNECTED(amf_ue)) {
+                if (CM_CONNECTED(amf_ue))
+                {
                     /* Previous NG(ran_ue_t) context the holding timer(30secs)
                      * is started.
                      * Newly associated NG(ran_ue_t) context holding timer
                      * is stopped. */
                     ogs_debug("[%s] Start NG Holding Timer", amf_ue->suci);
                     ogs_debug("[%s]    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-                            amf_ue->suci, amf_ue->ran_ue->ran_ue_ngap_id,
-                            (long long)amf_ue->ran_ue->amf_ue_ngap_id);
+                              amf_ue->suci, amf_ue->ran_ue->ran_ue_ngap_id,
+                              (long long)amf_ue->ran_ue->amf_ue_ngap_id);
 
                     /* De-associate NG with NAS/EMM */
                     ran_ue_deassociate(amf_ue->ran_ue);
 
                     ogs_assert(OGS_OK ==
-                        ngap_send_ran_ue_context_release_command(amf_ue->ran_ue,
-                            NGAP_Cause_PR_nas, NGAP_CauseNas_normal_release,
-                            NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
+                               ngap_send_ran_ue_context_release_command(amf_ue->ran_ue,
+                                                                        NGAP_Cause_PR_nas, NGAP_CauseNas_normal_release,
+                                                                        NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
                 }
                 amf_ue_associate_ran_ue(amf_ue, ran_ue);
             }
         }
     }
 
-    if (!UserLocationInformation) {
+    if (!UserLocationInformation)
+    {
         ogs_error("No UserLocationInformation");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (UserLocationInformation->present !=
-            NGAP_UserLocationInformation_PR_userLocationInformationNR) {
-        ogs_error("Not implemented UserLocationInformation[%d]",
-                UserLocationInformation->present);
-        ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
-        return;
-    }
+    // Matan: do not error on not NR location info (1)
+    // if (UserLocationInformation->present !=
+    //         NGAP_UserLocationInformation_PR_userLocationInformationNR) {
+    //     ogs_error("Not implemented UserLocationInformation[%d]",
+    //             UserLocationInformation->present);
+    //     ogs_assert(OGS_OK ==
+    //         ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
+    //             NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
+    //     return;
+    // }
 
-    if (!NAS_PDU) {
+    if (!NAS_PDU)
+    {
         ogs_error("No NAS_PDU");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    UserLocationInformationNR =
-        UserLocationInformation->choice.userLocationInformationNR;
-    ogs_assert(UserLocationInformationNR);
-    ogs_ngap_ASN_to_nr_cgi(
+    switch (UserLocationInformation->present)
+    {
+    case NGAP_UserLocationInformation_PR_userLocationInformationNR:
+    {
+        UserLocationInformationNR =
+            UserLocationInformation->choice.userLocationInformationNR;
+        ogs_assert(UserLocationInformationNR);
+        ogs_ngap_ASN_to_nr_cgi(
             &UserLocationInformationNR->nR_CGI, &ran_ue->saved.nr_cgi);
-    ogs_ngap_ASN_to_5gs_tai(
+        ogs_ngap_ASN_to_5gs_tai(
             &UserLocationInformationNR->tAI, &ran_ue->saved.nr_tai);
 
-    ogs_info("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] "
-            "TAC[%d] CellID[0x%llx]",
-        ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id,
-        ran_ue->saved.nr_tai.tac.v, (long long)ran_ue->saved.nr_cgi.cell_id);
+        ogs_info("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] "
+                 "TAC[%d] CellID[0x%llx]",
+                 ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id,
+                 ran_ue->saved.nr_tai.tac.v, (long long)ran_ue->saved.nr_cgi.cell_id);
+        break;
+    }
+    // Matan
+    case NGAP_UserLocationInformation_PR_userLocationInformationN3IWF:
+    {
+        UserLocationInformationN3IWF = UserLocationInformation->choice.userLocationInformationN3IWF;
+        ogs_assert(UserLocationInformationN3IWF);
+        ogs_ngap_ip_to_5gs_ip(&UserLocationInformationN3IWF->iPAddress, &ran_ue->saved.ip);
+        // concat two uint_8 for one uint_16 port
+        ran_ue->saved.port = UserLocationInformationN3IWF->portNumber.buf[0] | (UserLocationInformationN3IWF->portNumber.buf[1] << 8);
+        // copy over first option for TAI (as per Free5GC)
+        // default option in our case (hard coded)
+        ogs_plmn_id_build(&ran_ue->saved.nr_tai.plmn_id, 901, 70, 2);
+        ran_ue->saved.nr_tai.tac.v = 1;
+        break;
+    }
+    default:
+    {
+        ogs_error("Not implemented UserLocationInformation[%d]",
+                  UserLocationInformation->present);
+        return;
+    }
+    }
 
-    if (UEContextRequest) {
-        if (*UEContextRequest == NGAP_UEContextRequest_requested) {
+    if (UEContextRequest)
+    {
+        if (*UEContextRequest == NGAP_UEContextRequest_requested)
+        {
             ran_ue->ue_context_requested = true;
         }
     }
@@ -509,7 +568,7 @@ void ngap_handle_initial_ue_message(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 }
 
 void ngap_handle_uplink_nas_transport(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -527,6 +586,7 @@ void ngap_handle_uplink_nas_transport(
     NGAP_NAS_PDU_t *NAS_PDU = NULL;
     NGAP_UserLocationInformation_t *UserLocationInformation = NULL;
     NGAP_UserLocationInformationNR_t *UserLocationInformationNR = NULL;
+    NGAP_UserLocationInformationN3IWF_t *UserLocationInformationN3IWF = NULL;
 
     ogs_assert(gnb);
     ogs_assert(gnb->sctp.sock);
@@ -539,9 +599,11 @@ void ngap_handle_uplink_nas_transport(
 
     ogs_debug("UplinkNASTransport");
 
-    for (i = 0; i < UplinkNASTransport->protocolIEs.list.count; i++) {
+    for (i = 0; i < UplinkNASTransport->protocolIEs.list.count; i++)
+    {
         ie = UplinkNASTransport->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -560,88 +622,128 @@ void ngap_handle_uplink_nas_transport(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (!UserLocationInformation) {
+    if (!UserLocationInformation)
+    {
         ogs_error("No UserLocationInformation");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (UserLocationInformation->present !=
-            NGAP_UserLocationInformation_PR_userLocationInformationNR) {
-        ogs_error("Not implemented UserLocationInformation[%d]",
-                UserLocationInformation->present);
-        ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
-        return;
-    }
+    // Matan: do not fail on not UserLocationInformationNR (2)
+    // if (UserLocationInformation->present !=
+    //     NGAP_UserLocationInformation_PR_userLocationInformationNR)
+    // {
+    //     ogs_error("Not implemented UserLocationInformation[%d]",
+    //               UserLocationInformation->present);
+    //     ogs_assert(OGS_OK ==
+    //                ngap_send_error_indication(gnb, &ran_ue->ran_ue_ngap_id, NULL,
+    //                                           NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
+    //     return;
+    // }
 
-    if (!NAS_PDU) {
+    if (!NAS_PDU)
+    {
         ogs_error("No NAS_PDU");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    UserLocationInformationNR =
-        UserLocationInformation->choice.userLocationInformationNR;
-    ogs_assert(UserLocationInformationNR);
-    ogs_ngap_ASN_to_nr_cgi(
+    switch (UserLocationInformation->present)
+    {
+    case NGAP_UserLocationInformation_PR_userLocationInformationNR:
+    {
+        UserLocationInformationNR =
+            UserLocationInformation->choice.userLocationInformationNR;
+        ogs_assert(UserLocationInformationNR);
+        ogs_ngap_ASN_to_nr_cgi(
             &UserLocationInformationNR->nR_CGI, &ran_ue->saved.nr_cgi);
-    ogs_ngap_ASN_to_5gs_tai(
+        ogs_ngap_ASN_to_5gs_tai(
             &UserLocationInformationNR->tAI, &ran_ue->saved.nr_tai);
 
+        ogs_info("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] "
+                 "TAC[%d] CellID[0x%llx]",
+                 ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id,
+                 ran_ue->saved.nr_tai.tac.v, (long long)ran_ue->saved.nr_cgi.cell_id);
+        break;
+    }
+    // Matan
+    case NGAP_UserLocationInformation_PR_userLocationInformationN3IWF:
+    {
+        UserLocationInformationN3IWF = UserLocationInformation->choice.userLocationInformationN3IWF;
+        ogs_assert(UserLocationInformationN3IWF);
+        ogs_ngap_ip_to_5gs_ip(&UserLocationInformationN3IWF->iPAddress, &ran_ue->saved.ip);
+        // concat two uint_8 for one uint_16 port
+        ran_ue->saved.port = UserLocationInformationN3IWF->portNumber.buf[0] | (UserLocationInformationN3IWF->portNumber.buf[1] << 8);
+        // copy over first option for TAI (as per Free5GC)
+        // default option in our case (hard coded)
+        ogs_plmn_id_build(&ran_ue->saved.nr_tai.plmn_id, 901, 70, 2);
+        ran_ue->saved.nr_tai.tac.v = 1;
+        break;
+    }
+    default:
+    {
+        ogs_error("Not implemented UserLocationInformation[%d]",
+                  UserLocationInformation->present);
+        return;
+    }
+    }
+
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] "
-            "TAC[%d] CellID[0x%llx]",
-        ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id,
-        ran_ue->saved.nr_tai.tac.v, (long long)ran_ue->saved.nr_cgi.cell_id);
+              "TAC[%d] CellID[0x%llx]",
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id,
+              ran_ue->saved.nr_tai.tac.v, (long long)ran_ue->saved.nr_cgi.cell_id);
 
     /* Copy NR-TAI/NR-CGI from ran_ue */
     memcpy(&amf_ue->nr_tai, &ran_ue->saved.nr_tai, sizeof(ogs_5gs_tai_t));
@@ -651,7 +753,7 @@ void ngap_handle_uplink_nas_transport(
 }
 
 void ngap_handle_ue_radio_capability_info_indication(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -681,9 +783,11 @@ void ngap_handle_ue_radio_capability_info_indication(
     ogs_debug("UERadioCapabilityInfoIndication");
 
     for (i = 0;
-            i < UERadioCapabilityInfoIndication->protocolIEs.list.count; i++) {
+         i < UERadioCapabilityInfoIndication->protocolIEs.list.count; i++)
+    {
         ie = UERadioCapabilityInfoIndication->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -699,56 +803,60 @@ void ngap_handle_ue_radio_capability_info_indication(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
-    if (!UERadioCapability) {
+    if (!UERadioCapability)
+    {
         ogs_error("No UERadioCapability");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (ran_ue->amf_ue)
         OGS_ASN_STORE_DATA(&ran_ue->amf_ue->ueRadioCapability,
-                UERadioCapability);
+                           UERadioCapability);
 }
 
 void ngap_handle_initial_context_setup_response(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -781,9 +889,11 @@ void ngap_handle_initial_context_setup_response(
 
     ogs_debug("InitialContextSetupResponse");
 
-    for (i = 0; i < InitialContextSetupResponse->protocolIEs.list.count; i++) {
+    for (i = 0; i < InitialContextSetupResponse->protocolIEs.list.count; i++)
+    {
         ie = InitialContextSetupResponse->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -800,100 +910,110 @@ void ngap_handle_initial_context_setup_response(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    for (i = 0; PDUSessionList && i < PDUSessionList->list.count; i++) {
+    for (i = 0; PDUSessionList && i < PDUSessionList->list.count; i++)
+    {
         PDUSessionItem = (NGAP_PDUSessionResourceSetupItemCxtRes_t *)
-            PDUSessionList->list.array[i];
+                             PDUSessionList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No PDUSessionResourceSetupItemCxtRes");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->pDUSessionResourceSetupResponseTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No PDUSessionResourceSetupResponseTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -904,10 +1024,10 @@ void ngap_handle_initial_context_setup_response(
         ogs_pkbuf_put_data(param.n2smbuf, transfer->buf, transfer->size);
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_ACTIVATED, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_ACTIVATED, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
@@ -923,7 +1043,8 @@ void ngap_handle_initial_context_setup_response(
      * from the network and before the release of the N1 NAS signalling
      * connection.
      */
-    if (DOWNLINK_SIGNALLING_PENDING(amf_ue) == true) {
+    if (DOWNLINK_SIGNALLING_PENDING(amf_ue) == true)
+    {
         /*
          * TS24.501
          * 5.4.4 Generic UE configuration update procedure
@@ -934,25 +1055,29 @@ void ngap_handle_initial_context_setup_response(
          * for assigning a new 5G-GUTI can be initiated by the network
          * after the transport of the 5GSM downlink signalling.
          */
-        ogs_list_for_each(&amf_ue->sess_list, sess) {
+        ogs_list_for_each(&amf_ue->sess_list, sess)
+        {
             ogs_pkbuf_t *ngapbuf = NULL;
             ogs_pkbuf_t *gmmbuf = NULL;
 
             /* There is no Downlink Signalling Pending in this sesssion */
-            if (sess->gsm_message.type == 0) continue;
+            if (sess->gsm_message.type == 0)
+                continue;
 
-            switch (sess->gsm_message.type) {
+            switch (sess->gsm_message.type)
+            {
             case OGS_NAS_5GS_PDU_SESSION_MODIFICATION_COMMAND:
                 gmmbuf = gmm_build_dl_nas_transport(sess,
-                        OGS_NAS_PAYLOAD_CONTAINER_N1_SM_INFORMATION,
-                        sess->gsm_message.n1buf, 0, 0);
+                                                    OGS_NAS_PAYLOAD_CONTAINER_N1_SM_INFORMATION,
+                                                    sess->gsm_message.n1buf, 0, 0);
                 ogs_assert(gmmbuf);
 
                 ngapbuf = ngap_build_pdu_session_resource_modify_request(
-                        sess, gmmbuf, sess->gsm_message.n2buf);
+                    sess, gmmbuf, sess->gsm_message.n2buf);
                 ogs_assert(ngapbuf);
 
-                if (nas_5gs_send_to_gnb(amf_ue, ngapbuf) != OGS_OK) {
+                if (nas_5gs_send_to_gnb(amf_ue, ngapbuf) != OGS_OK)
+                {
                     ogs_error("nas_5gs_send_to_gnb() failed");
                 }
 
@@ -968,11 +1093,13 @@ void ngap_handle_initial_context_setup_response(
                 break;
             default:
                 ogs_fatal("Unknown GSM Message Type[%d]",
-                        sess->gsm_message.type);
+                          sess->gsm_message.type);
                 ogs_assert_if_reached();
             }
         }
-    } else if (PAGING_ONGOING(amf_ue) == true) {
+    }
+    else if (PAGING_ONGOING(amf_ue) == true)
+    {
         gmm_configuration_update_command_param_t param;
 
         /*
@@ -1002,14 +1129,14 @@ void ngap_handle_initial_context_setup_response(
         param.acknowledgement_requested = 1;
         param.guti = 1;
         ogs_assert(OGS_OK ==
-            nas_5gs_send_configuration_update_command(amf_ue, &param));
+                   nas_5gs_send_configuration_update_command(amf_ue, &param));
 
         AMF_UE_CLEAR_PAGING_INFO(amf_ue);
     }
 }
 
 void ngap_handle_initial_context_setup_failure(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i, old_xact_count = 0, new_xact_count = 0;
@@ -1038,9 +1165,11 @@ void ngap_handle_initial_context_setup_failure(
 
     ogs_debug("InitialContextSetupFailure");
 
-    for (i = 0; i < InitialContextSetupFailure->protocolIEs.list.count; i++) {
+    for (i = 0; i < InitialContextSetupFailure->protocolIEs.list.count; i++)
+    {
         ie = InitialContextSetupFailure->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -1056,50 +1185,54 @@ void ngap_handle_initial_context_setup_failure(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
     ogs_debug("    Cause[Group:%d Cause:%d]",
-            Cause->present, (int)Cause->choice.radioNetwork);
+              Cause->present, (int)Cause->choice.radioNetwork);
 
     /*
      * 19.2.2.3 in Spec 36.300
@@ -1112,7 +1245,8 @@ void ngap_handle_initial_context_setup_failure(
      * that no hanging resources remain at the RAN.
      */
     amf_ue = ran_ue->amf_ue;
-    if (amf_ue) {
+    if (amf_ue)
+    {
         /*
          * if T3550 is running, Registration complete will be sent.
          * So, we need to clear all the timer at this point.
@@ -1125,22 +1259,23 @@ void ngap_handle_initial_context_setup_failure(
         amf_ue->deactivation.cause = NGAP_CauseNas_normal_release;
 
         amf_sbi_send_deactivate_all_sessions(
-                amf_ue, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
-                Cause->present, (int)Cause->choice.radioNetwork);
+            amf_ue, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
+            Cause->present, (int)Cause->choice.radioNetwork);
 
         new_xact_count = amf_sess_xact_count(amf_ue);
     }
 
-    if (old_xact_count == new_xact_count) {
+    if (old_xact_count == new_xact_count)
+    {
         ogs_assert(OGS_OK ==
-            ngap_send_ran_ue_context_release_command(ran_ue,
-                NGAP_Cause_PR_nas, NGAP_CauseNas_normal_release,
-                NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
+                   ngap_send_ran_ue_context_release_command(ran_ue,
+                                                            NGAP_Cause_PR_nas, NGAP_CauseNas_normal_release,
+                                                            NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
     }
 }
 
 void ngap_handle_ue_context_release_request(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     int i;
     char buf[OGS_ADDRSTRLEN];
@@ -1172,9 +1307,11 @@ void ngap_handle_ue_context_release_request(
 
     ogs_debug("UEContextReleaseRequest");
 
-    for (i = 0; i < UEContextReleaseRequest->protocolIEs.list.count; i++) {
+    for (i = 0; i < UEContextReleaseRequest->protocolIEs.list.count; i++)
+    {
         ie = UEContextReleaseRequest->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -1193,53 +1330,58 @@ void ngap_handle_ue_context_release_request(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_warn("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                 (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ogs_debug("    Cause[Group:%d Cause:%d]",
-            Cause->present, (int)Cause->choice.radioNetwork);
+              Cause->present, (int)Cause->choice.radioNetwork);
 
-    switch (Cause->present) {
+    switch (Cause->present)
+    {
     case NGAP_Cause_PR_radioNetwork:
     case NGAP_Cause_PR_transport:
     case NGAP_Cause_PR_protocol:
@@ -1254,67 +1396,77 @@ void ngap_handle_ue_context_release_request(
     }
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_ran_ue_context_release_command(ran_ue,
-                Cause->present, (int)Cause->choice.radioNetwork,
-                NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
-    } else {
+                   ngap_send_ran_ue_context_release_command(ran_ue,
+                                                            Cause->present, (int)Cause->choice.radioNetwork,
+                                                            NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE, 0));
+    }
+    else
+    {
         int xact_count = amf_sess_xact_count(amf_ue);
 
         amf_ue->deactivation.group = Cause->present;
         amf_ue->deactivation.cause = (int)Cause->choice.radioNetwork;
 
-        if (!PDUSessionList) {
+        if (!PDUSessionList)
+        {
             amf_sbi_send_deactivate_all_sessions(
-                    amf_ue, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
-                    Cause->present, (int)Cause->choice.radioNetwork);
-        } else {
-            for (i = 0; i < PDUSessionList->list.count; i++) {
+                amf_ue, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
+                Cause->present, (int)Cause->choice.radioNetwork);
+        }
+        else
+        {
+            for (i = 0; i < PDUSessionList->list.count; i++)
+            {
                 PDUSessionItem = (NGAP_PDUSessionResourceItemCxtRelReq_t *)
-                    PDUSessionList->list.array[i];
+                                     PDUSessionList->list.array[i];
 
-                if (!PDUSessionItem) {
+                if (!PDUSessionItem)
+                {
                     ogs_error("No PDUSessionResourceSetupItemSURes");
                     ogs_assert(OGS_OK ==
-                        ngap_send_error_indication2(
-                            amf_ue, NGAP_Cause_PR_protocol,
-                            NGAP_CauseProtocol_semantic_error));
+                               ngap_send_error_indication2(
+                                   amf_ue, NGAP_Cause_PR_protocol,
+                                   NGAP_CauseProtocol_semantic_error));
                     return;
                 }
 
                 if (PDUSessionItem->pDUSessionID ==
-                        OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+                    OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+                {
                     ogs_error("PDU Session Identity is unassigned");
                     ogs_assert(OGS_OK ==
-                        ngap_send_error_indication2(
-                            amf_ue, NGAP_Cause_PR_protocol,
-                            NGAP_CauseProtocol_semantic_error));
+                               ngap_send_error_indication2(
+                                   amf_ue, NGAP_Cause_PR_protocol,
+                                   NGAP_CauseProtocol_semantic_error));
                     return;
                 }
 
                 sess = amf_sess_find_by_psi(amf_ue,
-                        PDUSessionItem->pDUSessionID);
-                if (SESSION_CONTEXT_IN_SMF(sess)) {
+                                            PDUSessionItem->pDUSessionID);
+                if (SESSION_CONTEXT_IN_SMF(sess))
+                {
                     amf_sbi_send_deactivate_session(
-                            sess, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
-                            Cause->present, (int)Cause->choice.radioNetwork);
+                        sess, AMF_UPDATE_SM_CONTEXT_DEACTIVATED,
+                        Cause->present, (int)Cause->choice.radioNetwork);
                 }
             }
         }
 
         if (amf_sess_xact_count(amf_ue) == xact_count)
             ogs_assert(OGS_OK ==
-                ngap_send_amf_ue_context_release_command(amf_ue,
-                    Cause->present, (int)Cause->choice.radioNetwork,
-                    NGAP_UE_CTX_REL_NG_REMOVE_AND_UNLINK, 0));
+                       ngap_send_amf_ue_context_release_command(amf_ue,
+                                                                Cause->present, (int)Cause->choice.radioNetwork,
+                                                                NGAP_UE_CTX_REL_NG_REMOVE_AND_UNLINK, 0));
     }
 }
 
 void ngap_handle_ue_context_release_complete(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     int i;
     char buf[OGS_ADDRSTRLEN];
@@ -1341,9 +1493,11 @@ void ngap_handle_ue_context_release_complete(
 
     ogs_debug("UEContextReleaseComplete");
 
-    for (i = 0; i < UEContextReleaseComplete->protocolIEs.list.count; i++) {
+    for (i = 0; i < UEContextReleaseComplete->protocolIEs.list.count; i++)
+    {
         ie = UEContextReleaseComplete->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -1356,34 +1510,37 @@ void ngap_handle_ue_context_release_complete(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
@@ -1396,7 +1553,8 @@ void ngap_handle_ue_context_release_action(ran_ue_t *ran_ue)
 
     ogs_assert(ran_ue);
 
-    if (ran_ue_cycle(ran_ue) == NULL) {
+    if (ran_ue_cycle(ran_ue) == NULL)
+    {
         ogs_error("NG context has already been removed");
         return;
     }
@@ -1405,8 +1563,9 @@ void ngap_handle_ue_context_release_action(ran_ue_t *ran_ue)
 
     ogs_info("UE Context Release [Action:%d]", ran_ue->ue_ctx_rel_action);
     ogs_info("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
-    if (amf_ue) {
+             ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+    if (amf_ue)
+    {
         ogs_info("    SUCI[%s]", amf_ue->suci ? amf_ue->suci : "Unknown");
 
         /*
@@ -1420,7 +1579,8 @@ void ngap_handle_ue_context_release_action(ran_ue_t *ran_ue)
         CLEAR_AMF_UE_ALL_TIMERS(amf_ue);
     }
 
-    switch (ran_ue->ue_ctx_rel_action) {
+    switch (ran_ue->ue_ctx_rel_action)
+    {
     case NGAP_UE_CTX_REL_NG_CONTEXT_REMOVE:
         ogs_debug("    Action: NG context remove");
         ran_ue_remove(ran_ue);
@@ -1455,7 +1615,7 @@ void ngap_handle_ue_context_release_action(ran_ue_t *ran_ue)
         ogs_expect_or_return(amf_ue->ran_ue);
 
         ogs_assert(OGS_OK ==
-            ngap_send_handover_cancel_ack(amf_ue->ran_ue));
+                   ngap_send_handover_cancel_ack(amf_ue->ran_ue));
         break;
     case NGAP_UE_CTX_REL_NG_HANDOVER_FAILURE:
         ogs_warn("    Action: NG handover failure");
@@ -1472,7 +1632,7 @@ void ngap_handle_ue_context_release_action(ran_ue_t *ran_ue)
 }
 
 void ngap_handle_pdu_session_resource_setup_response(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -1509,9 +1669,11 @@ void ngap_handle_pdu_session_resource_setup_response(
     ogs_debug("PDUSessionResourceSetupResponse");
 
     for (i = 0; i < PDUSessionResourceSetupResponse->protocolIEs.list.count;
-            i++) {
+         i++)
+    {
         ie = PDUSessionResourceSetupResponse->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -1532,108 +1694,119 @@ void ngap_handle_pdu_session_resource_setup_response(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (PDUSessionList) {
-        for (i = 0; i < PDUSessionList->list.count; i++) {
+    if (PDUSessionList)
+    {
+        for (i = 0; i < PDUSessionList->list.count; i++)
+        {
             amf_sess_t *sess = NULL;
             PDUSessionItem = (NGAP_PDUSessionResourceSetupItemSURes_t *)
-                PDUSessionList->list.array[i];
+                                 PDUSessionList->list.array[i];
 
-            if (!PDUSessionItem) {
+            if (!PDUSessionItem)
+            {
                 ogs_error("No PDUSessionResourceSetupItemSURes");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             transfer = &PDUSessionItem->pDUSessionResourceSetupResponseTransfer;
-            if (!transfer) {
+            if (!transfer)
+            {
                 ogs_error("No PDUSessionResourceSetupResponseTransfer");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             if (PDUSessionItem->pDUSessionID ==
-                    OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+            {
                 ogs_error("PDU Session Identity is unassigned");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-            if (!sess) {
+            if (!sess)
+            {
                 ogs_error("Cannot find PDU Session ID [%d]",
-                        (int)PDUSessionItem->pDUSessionID);
+                          (int)PDUSessionItem->pDUSessionID);
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(amf_ue,
-                        NGAP_Cause_PR_radioNetwork,
-                        NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                           ngap_send_error_indication2(amf_ue,
+                                                       NGAP_Cause_PR_radioNetwork,
+                                                       NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
                 return;
             }
 
-            if (!SESSION_CONTEXT_IN_SMF(sess)) {
+            if (!SESSION_CONTEXT_IN_SMF(sess))
+            {
                 ogs_error("Session Context is not in SMF [%d]",
-                        (int)PDUSessionItem->pDUSessionID);
+                          (int)PDUSessionItem->pDUSessionID);
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(amf_ue,
-                        NGAP_Cause_PR_radioNetwork,
-                        NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                           ngap_send_error_indication2(amf_ue,
+                                                       NGAP_Cause_PR_radioNetwork,
+                                                       NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
                 return;
             }
 
@@ -1644,74 +1817,81 @@ void ngap_handle_pdu_session_resource_setup_response(
             ogs_pkbuf_put_data(param.n2smbuf, transfer->buf, transfer->size);
 
             ogs_assert(true ==
-                amf_sess_sbi_discover_and_send(
-                    OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                    amf_nsmf_pdusession_build_update_sm_context,
-                    sess, AMF_UPDATE_SM_CONTEXT_ACTIVATED, &param));
+                       amf_sess_sbi_discover_and_send(
+                           OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                           amf_nsmf_pdusession_build_update_sm_context,
+                           sess, AMF_UPDATE_SM_CONTEXT_ACTIVATED, &param));
 
             ogs_pkbuf_free(param.n2smbuf);
         }
-    } else if (PDUSessionFailedList) {
-        for (i = 0; i < PDUSessionFailedList->list.count; i++) {
+    }
+    else if (PDUSessionFailedList)
+    {
+        for (i = 0; i < PDUSessionFailedList->list.count; i++)
+        {
             amf_sess_t *sess = NULL;
             PDUSessionFailedItem =
                 (NGAP_PDUSessionResourceFailedToSetupItemSURes_t *)
-                PDUSessionFailedList->list.array[i];
+                    PDUSessionFailedList->list.array[i];
 
-            if (!PDUSessionFailedItem) {
+            if (!PDUSessionFailedItem)
+            {
                 ogs_error("No PDUSessionResourceFailedToSetupItemSURes");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             transfer =
-                &PDUSessionFailedItem->
-                    pDUSessionResourceSetupUnsuccessfulTransfer;
-            if (!transfer) {
+                &PDUSessionFailedItem->pDUSessionResourceSetupUnsuccessfulTransfer;
+            if (!transfer)
+            {
                 ogs_error("No PDUSessionResourceSetupUnsuccessfulTransfer");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             if (PDUSessionFailedItem->pDUSessionID ==
-                    OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+            {
                 ogs_error("PDU Session Identity is unassigned");
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_protocol,
-                        NGAP_CauseProtocol_semantic_error));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_protocol,
+                               NGAP_CauseProtocol_semantic_error));
                 return;
             }
 
             sess = amf_sess_find_by_psi(
-                    amf_ue, PDUSessionFailedItem->pDUSessionID);
-            if (!sess) {
+                amf_ue, PDUSessionFailedItem->pDUSessionID);
+            if (!sess)
+            {
                 ogs_error("Cannot find PDU Session ID [%d]",
-                        (int)PDUSessionFailedItem->pDUSessionID);
+                          (int)PDUSessionFailedItem->pDUSessionID);
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(
-                        amf_ue,
-                        NGAP_Cause_PR_radioNetwork,
-                        NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                           ngap_send_error_indication2(
+                               amf_ue,
+                               NGAP_Cause_PR_radioNetwork,
+                               NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
                 return;
             }
 
-            if (!SESSION_CONTEXT_IN_SMF(sess)) {
+            if (!SESSION_CONTEXT_IN_SMF(sess))
+            {
                 ogs_error("Session Context is not in SMF [%d]",
-                        (int)PDUSessionFailedItem->pDUSessionID);
+                          (int)PDUSessionFailedItem->pDUSessionID);
                 ogs_assert(OGS_OK ==
-                    ngap_send_error_indication2(amf_ue,
-                        NGAP_Cause_PR_radioNetwork,
-                        NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                           ngap_send_error_indication2(amf_ue,
+                                                       NGAP_Cause_PR_radioNetwork,
+                                                       NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
                 return;
             }
 
@@ -1764,23 +1944,25 @@ void ngap_handle_pdu_session_resource_setup_response(
             amf_ue->deactivation.cause = NGAP_CauseNas_normal_release;
 
             ogs_assert(true ==
-                amf_sess_sbi_discover_and_send(
-                    OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                    amf_nsmf_pdusession_build_update_sm_context,
-                    sess, AMF_UPDATE_SM_CONTEXT_SETUP_FAIL, &param));
+                       amf_sess_sbi_discover_and_send(
+                           OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                           amf_nsmf_pdusession_build_update_sm_context,
+                           sess, AMF_UPDATE_SM_CONTEXT_SETUP_FAIL, &param));
 
             ogs_pkbuf_free(param.n2smbuf);
         }
-    } else {
+    }
+    else
+    {
         ogs_error("No PDUSessionResourceList");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
     }
 }
 
 void ngap_handle_pdu_session_resource_modify_response(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -1813,9 +1995,11 @@ void ngap_handle_pdu_session_resource_modify_response(
     ogs_debug("PDUSessionResourceModifyResponse");
 
     for (i = 0; i < PDUSessionResourceModifyResponse->protocolIEs.list.count;
-            i++) {
+         i++)
+    {
         ie = PDUSessionResourceModifyResponse->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -1832,109 +2016,120 @@ void ngap_handle_pdu_session_resource_modify_response(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (!PDUSessionList) {
+    if (!PDUSessionList)
+    {
         ogs_error("No PDUSessionResourceModifyListModRes");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    for (i = 0; i < PDUSessionList->list.count; i++) {
+    for (i = 0; i < PDUSessionList->list.count; i++)
+    {
         amf_sess_t *sess = NULL;
         PDUSessionItem = (NGAP_PDUSessionResourceModifyItemModRes_t *)
-            PDUSessionList->list.array[i];
+                             PDUSessionList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No PDUSessionResourceModifyItemModRes");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->pDUSessionResourceModifyResponseTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No PDUSessionResourceModifyResponseTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -1945,17 +2140,17 @@ void ngap_handle_pdu_session_resource_modify_response(
         ogs_pkbuf_put_data(param.n2smbuf, transfer->buf, transfer->size);
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_MODIFIED, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_MODIFIED, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
 }
 
 void ngap_handle_pdu_session_resource_release_response(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -1989,9 +2184,11 @@ void ngap_handle_pdu_session_resource_release_response(
     ogs_debug("PDUSessionResourceReleaseResponse");
 
     for (i = 0; i < PDUSessionResourceReleaseResponse->protocolIEs.list.count;
-            i++) {
+         i++)
+    {
         ie = PDUSessionResourceReleaseResponse->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -2008,109 +2205,120 @@ void ngap_handle_pdu_session_resource_release_response(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-            ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+              ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (!PDUSessionList) {
+    if (!PDUSessionList)
+    {
         ogs_error("No PDUSessionResourceReleasedListRelRes");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    for (i = 0; i < PDUSessionList->list.count; i++) {
+    for (i = 0; i < PDUSessionList->list.count; i++)
+    {
         amf_sess_t *sess = NULL;
         PDUSessionItem = (NGAP_PDUSessionResourceReleasedItemRelRes_t *)
-            PDUSessionList->list.array[i];
+                             PDUSessionList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No PDUSessionResourceReleasedItemRelRes");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->pDUSessionResourceReleaseResponseTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No PDUSessionResourceReleaseResponseTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -2121,17 +2329,17 @@ void ngap_handle_pdu_session_resource_release_response(
         ogs_pkbuf_put_data(param.n2smbuf, transfer->buf, transfer->size);
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_N2_RELEASED, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_N2_RELEASED, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
 }
 
 void ngap_handle_uplink_ran_configuration_transfer(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message, ogs_pkbuf_t *pkbuf)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message, ogs_pkbuf_t *pkbuf)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -2155,9 +2363,11 @@ void ngap_handle_uplink_ran_configuration_transfer(
 
     ogs_debug("UplinkRANConfigurationTransfer");
     for (i = 0;
-            i < UplinkRANConfigurationTransfer->protocolIEs.list.count; i++) {
+         i < UplinkRANConfigurationTransfer->protocolIEs.list.count; i++)
+    {
         ie = UplinkRANConfigurationTransfer->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_SONConfigurationTransferUL:
             SONConfigurationTransfer =
                 &ie->value.choice.SONConfigurationTransfer;
@@ -2168,9 +2378,10 @@ void ngap_handle_uplink_ran_configuration_transfer(
     }
 
     ogs_debug("    IP[%s] ENB_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (SONConfigurationTransfer) {
+    if (SONConfigurationTransfer)
+    {
         NGAP_TargetRANNodeID_t *targetRANNodeID = NULL;
         NGAP_GlobalRANNodeID_t *targetGlobalRANNodeID;
         NGAP_GlobalGNB_ID_t *targetGlobalGNB_ID;
@@ -2186,21 +2397,23 @@ void ngap_handle_uplink_ran_configuration_transfer(
         targetGlobalRANNodeID = &targetRANNodeID->globalRANNodeID;
 
         if (targetGlobalRANNodeID->present !=
-                NGAP_GlobalRANNodeID_PR_globalGNB_ID) {
+            NGAP_GlobalRANNodeID_PR_globalGNB_ID)
+        {
             ogs_error("Not implemented targetGlobalRANNodeID->present[%d]",
-                    targetGlobalRANNodeID->present);
+                      targetGlobalRANNodeID->present);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication(gnb, NULL, NULL,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication(gnb, NULL, NULL,
+                                                  NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         targetGlobalGNB_ID = targetGlobalRANNodeID->choice.globalGNB_ID;
-        if (!targetGlobalGNB_ID) {
+        if (!targetGlobalGNB_ID)
+        {
             ogs_error("No targetGlobalGNB_ID");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication(gnb, NULL, NULL,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication(gnb, NULL, NULL,
+                                                  NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
@@ -2211,21 +2424,23 @@ void ngap_handle_uplink_ran_configuration_transfer(
         sourceGlobalRANNodeID = &sourceRANNodeID->globalRANNodeID;
 
         if (sourceGlobalRANNodeID->present !=
-                NGAP_GlobalRANNodeID_PR_globalGNB_ID) {
+            NGAP_GlobalRANNodeID_PR_globalGNB_ID)
+        {
             ogs_error("Not implemented sourceGlobalRANNodeID->present[%d]",
-                    sourceGlobalRANNodeID->present);
+                      sourceGlobalRANNodeID->present);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication(gnb, NULL, NULL,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication(gnb, NULL, NULL,
+                                                  NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sourceGlobalGNB_ID = sourceGlobalRANNodeID->choice.globalGNB_ID;
-        if (!sourceGlobalGNB_ID) {
+        if (!sourceGlobalGNB_ID)
+        {
             ogs_error("No sourceGlobalGNB_ID");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication(gnb, NULL, NULL,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication(gnb, NULL, NULL,
+                                                  NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
@@ -2233,28 +2448,30 @@ void ngap_handle_uplink_ran_configuration_transfer(
         ogs_ngap_ASN_to_5gs_tai(&sourceRANNodeID->selectedTAI, &source_tai);
 
         ogs_debug("    Target : GNB_ID[0x%x], TAC[%d]",
-                target_gnb_id, target_tai.tac.v);
+                  target_gnb_id, target_tai.tac.v);
         ogs_debug("    Source : GNB_ID[0x%x], TAC[%d]",
-                source_gnb_id, source_tai.tac.v);
+                  source_gnb_id, source_tai.tac.v);
 
         target_gnb = amf_gnb_find_by_gnb_id(target_gnb_id);
-        if (!target_gnb) {
+        if (!target_gnb)
+        {
             ogs_error("Uplink RAN configuration transfer : "
-                    "cannot find target gNB-id[0x%x]", target_gnb_id);
+                      "cannot find target gNB-id[0x%x]",
+                      target_gnb_id);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication(gnb, NULL, NULL,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication(gnb, NULL, NULL,
+                                                  NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         ogs_assert(OGS_OK ==
-            ngap_send_downlink_ran_configuration_transfer(
-                target_gnb, SONConfigurationTransfer));
+                   ngap_send_downlink_ran_configuration_transfer(
+                       target_gnb, SONConfigurationTransfer));
     }
 }
 
 void ngap_handle_path_switch_request(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -2300,9 +2517,11 @@ void ngap_handle_path_switch_request(
 
     ogs_info("PathSwitchRequest");
 
-    for (i = 0; i < PathSwitchRequest->protocolIEs.list.count; i++) {
+    for (i = 0; i < PathSwitchRequest->protocolIEs.list.count; i++)
+    {
         ie = PathSwitchRequest->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -2325,61 +2544,66 @@ void ngap_handle_path_switch_request(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!RAN_UE_NGAP_ID) {
+    if (!RAN_UE_NGAP_ID)
+    {
         ogs_error("No RAN_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!ran_ue) {
+    if (!ran_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     amf_ue = ran_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &ran_ue->ran_ue_ngap_id, &ran_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_info("    [OLD] RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+             ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
     ogs_info("    [OLD] TAC[%d] CellID[0x%llx]",
-        amf_ue->nr_tai.tac.v, (long long)amf_ue->nr_cgi.cell_id);
+             amf_ue->nr_tai.tac.v, (long long)amf_ue->nr_cgi.cell_id);
 
     /* Update RAN-UE-NGAP-ID */
     ran_ue->ran_ue_ngap_id = *RAN_UE_NGAP_ID;
@@ -2387,58 +2611,63 @@ void ngap_handle_path_switch_request(
     /* Change ran_ue to the NEW gNB */
     ran_ue_switch_to_gnb(ran_ue, gnb);
 
-    if (!UserLocationInformation) {
+    if (!UserLocationInformation)
+    {
         ogs_error("No UserLocationInformation");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (UserLocationInformation->present !=
-            NGAP_UserLocationInformation_PR_userLocationInformationNR) {
+        NGAP_UserLocationInformation_PR_userLocationInformationNR)
+    {
         ogs_error("Not implemented UserLocationInformation[%d]",
-                UserLocationInformation->present);
+                  UserLocationInformation->present);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
         return;
     }
 
-    if (!UESecurityCapabilities) {
+    if (!UESecurityCapabilities)
+    {
         ogs_error("No UESecurityCapabilities");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!PDUSessionResourceToBeSwitchedDLList) {
+    if (!PDUSessionResourceToBeSwitchedDLList)
+    {
         ogs_error("No PDUSessionResourceToBeSwitchedDLList");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!SECURITY_CONTEXT_IS_VALID(amf_ue)) {
+    if (!SECURITY_CONTEXT_IS_VALID(amf_ue))
+    {
         ogs_error("No Security Context");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_nas, NGAP_CauseNas_authentication_failure));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_nas, NGAP_CauseNas_authentication_failure));
         return;
     }
 
     ogs_info("    [NEW] RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+             ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
 
     UserLocationInformationNR =
-            UserLocationInformation->choice.userLocationInformationNR;
+        UserLocationInformation->choice.userLocationInformationNR;
     ogs_assert(UserLocationInformationNR);
     ogs_ngap_ASN_to_nr_cgi(
-            &UserLocationInformationNR->nR_CGI, &ran_ue->saved.nr_cgi);
+        &UserLocationInformationNR->nR_CGI, &ran_ue->saved.nr_cgi);
     ogs_ngap_ASN_to_5gs_tai(
-            &UserLocationInformationNR->tAI, &ran_ue->saved.nr_tai);
+        &UserLocationInformationNR->tAI, &ran_ue->saved.nr_tai);
 
     /* Copy Stream-No/TAI/ECGI from ran_ue */
     amf_ue->gnb_ostream_id = ran_ue->gnb_ostream_id;
@@ -2446,7 +2675,7 @@ void ngap_handle_path_switch_request(
     memcpy(&amf_ue->nr_cgi, &ran_ue->saved.nr_cgi, sizeof(ogs_nr_cgi_t));
 
     ogs_info("    [NEW] TAC[%d] CellID[0x%llx]",
-        amf_ue->nr_tai.tac.v, (long long)amf_ue->nr_cgi.cell_id);
+             amf_ue->nr_tai.tac.v, (long long)amf_ue->nr_cgi.cell_id);
 
     nRencryptionAlgorithms = &UESecurityCapabilities->nRencryptionAlgorithms;
     nRintegrityProtectionAlgorithms =
@@ -2475,7 +2704,7 @@ void ngap_handle_path_switch_request(
     amf_ue->ue_security_capability.eutra_ea0 = eutra_ea0;
 
     memcpy(&eutra_ia,
-            eUTRAintegrityProtectionAlgorithms->buf, sizeof(eutra_ia));
+           eUTRAintegrityProtectionAlgorithms->buf, sizeof(eutra_ia));
     eutra_ia = be16toh(eutra_ia);
     eutra_ia0 = amf_ue->ue_security_capability.eutra_ia0;
     amf_ue->ue_security_capability.eutra_ia = eutra_ia >> 9;
@@ -2485,55 +2714,61 @@ void ngap_handle_path_switch_request(
     amf_ue->nhcc++;
     ogs_kdf_nh_gnb(amf_ue->kamf, amf_ue->nh, amf_ue->nh);
 
-    for (i = 0; i < PDUSessionResourceToBeSwitchedDLList->list.count; i++) {
+    for (i = 0; i < PDUSessionResourceToBeSwitchedDLList->list.count; i++)
+    {
         amf_sess_t *sess = NULL;
         PDUSessionItem = (NGAP_PDUSessionResourceToBeSwitchedDLItem_t *)
-            PDUSessionResourceToBeSwitchedDLList->list.array[i];
+                             PDUSessionResourceToBeSwitchedDLList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No NGAP_PDUSessionResourceToBeSwitchedDLItem");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->pathSwitchRequestTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No PDUSessionResourceSetupResponseTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -2544,17 +2779,17 @@ void ngap_handle_path_switch_request(
         ogs_pkbuf_put_data(param.n2smbuf, transfer->buf, transfer->size);
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_PATH_SWITCH_REQUEST, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_PATH_SWITCH_REQUEST, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
 }
 
 void ngap_handle_handover_required(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -2598,9 +2833,11 @@ void ngap_handle_handover_required(
 
     ogs_info("HandoverRequired");
 
-    for (i = 0; i < HandoverRequired->protocolIEs.list.count; i++) {
+    for (i = 0; i < HandoverRequired->protocolIEs.list.count; i++)
+    {
         ie = HandoverRequired->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -2629,143 +2866,158 @@ void ngap_handle_handover_required(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     source_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
 
     amf_ue = source_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (!HandoverType) {
+    if (!HandoverType)
+    {
         ogs_error("No HandoverType");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!TargetID) {
+    if (!TargetID)
+    {
         ogs_error("No TargetID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (TargetID->present != NGAP_TargetID_PR_targetRANNodeID) {
+    if (TargetID->present != NGAP_TargetID_PR_targetRANNodeID)
+    {
         ogs_error("Not implemented TargetID[%d]", TargetID->present);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
     targetRANNodeID = TargetID->choice.targetRANNodeID;
-    if (!targetRANNodeID) {
+    if (!targetRANNodeID)
+    {
         ogs_error("No targetRANNodeID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     globalRANNodeID = &targetRANNodeID->globalRANNodeID;
-    if (globalRANNodeID->present != NGAP_GlobalRANNodeID_PR_globalGNB_ID) {
+    if (globalRANNodeID->present != NGAP_GlobalRANNodeID_PR_globalGNB_ID)
+    {
         ogs_error("Not implemented globalRANNodeID[%d]",
-                globalRANNodeID->present);
+                  globalRANNodeID->present);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     globalGNB_ID = globalRANNodeID->choice.globalGNB_ID;
-    if (!globalGNB_ID) {
+    if (!globalGNB_ID)
+    {
         ogs_error("No globalGNB_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ogs_ngap_GNB_ID_to_uint32(&globalGNB_ID->gNB_ID, &target_gnb_id);
     target_gnb = amf_gnb_find_by_gnb_id(target_gnb_id);
-    if (!target_gnb) {
+    if (!target_gnb)
+    {
         ogs_error("Handover required : cannot find target gNB-id[0x%x]",
-                target_gnb_id);
+                  target_gnb_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!PDUSessionList) {
+    if (!PDUSessionList)
+    {
         ogs_error("No PDUSessionList");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!SourceToTarget_TransparentContainer) {
+    if (!SourceToTarget_TransparentContainer)
+    {
         ogs_error("No SourceToTarget_TransparentContainer");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!SECURITY_CONTEXT_IS_VALID(amf_ue)) {
+    if (!SECURITY_CONTEXT_IS_VALID(amf_ue))
+    {
         ogs_error("No Security Context");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_nas, NGAP_CauseNas_authentication_failure));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_nas, NGAP_CauseNas_authentication_failure));
         return;
     }
 
@@ -2779,10 +3031,10 @@ void ngap_handle_handover_required(
     /* Context Transfer */
     target_ue->ue_context_requested = source_ue->ue_context_requested;
     target_ue->initial_context_setup_request_sent =
-            source_ue->initial_context_setup_request_sent;
+        source_ue->initial_context_setup_request_sent;
 
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
 
     /* Store HandoverType */
     amf_ue->handover.type = *HandoverType;
@@ -2797,57 +3049,63 @@ void ngap_handle_handover_required(
 
     /* Store Container */
     OGS_ASN_STORE_DATA(&amf_ue->handover.container,
-            SourceToTarget_TransparentContainer);
+                       SourceToTarget_TransparentContainer);
 
-    for (i = 0; i < PDUSessionList->list.count; i++) {
+    for (i = 0; i < PDUSessionList->list.count; i++)
+    {
         amf_sess_t *sess = NULL;
         PDUSessionItem = (NGAP_PDUSessionResourceItemHORqd_t *)
-            PDUSessionList->list.array[i];
+                             PDUSessionList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No PDUSessionResourceItemHORqd");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->handoverRequiredTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No handoverRequiredTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -2861,17 +3119,17 @@ void ngap_handle_handover_required(
         param.TargetID = TargetID;
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_REQUIRED, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_REQUIRED, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
 }
 
 void ngap_handle_handover_request_ack(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -2906,9 +3164,11 @@ void ngap_handle_handover_request_ack(
 
     ogs_debug("HandoverRequestAcknowledge");
 
-    for (i = 0; i < HandoverRequestAcknowledge->protocolIEs.list.count; i++) {
+    for (i = 0; i < HandoverRequestAcknowledge->protocolIEs.list.count; i++)
+    {
         ie = HandoverRequestAcknowledge->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -2928,152 +3188,167 @@ void ngap_handle_handover_request_ack(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!RAN_UE_NGAP_ID) {
+    if (!RAN_UE_NGAP_ID)
+    {
         ogs_error("No RAN_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     target_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!target_ue) {
+    if (!target_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
-    if (!RAN_UE_NGAP_ID) {
+    if (!RAN_UE_NGAP_ID)
+    {
         ogs_error("No RAN_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     target_ue->ran_ue_ngap_id = *RAN_UE_NGAP_ID;
 
     source_ue = target_ue->source_ue;
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("Cannot find Source-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
         return;
     }
     amf_ue = target_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
 
-    if (!PDUSessionList) {
+    if (!PDUSessionList)
+    {
         ogs_error("No PDUSessionList");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    if (!TargetToSource_TransparentContainer) {
+    if (!TargetToSource_TransparentContainer)
+    {
         ogs_error("No TargetToSource_TransparentContainer");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication2(amf_ue,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication2(amf_ue,
+                                               NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     /* Store Container */
     OGS_ASN_STORE_DATA(&amf_ue->handover.container,
-            TargetToSource_TransparentContainer);
+                       TargetToSource_TransparentContainer);
 
-    for (i = 0; i < PDUSessionList->list.count; i++) {
+    for (i = 0; i < PDUSessionList->list.count; i++)
+    {
         amf_sess_t *sess = NULL;
         PDUSessionItem = (NGAP_PDUSessionResourceAdmittedItem_t *)
-            PDUSessionList->list.array[i];
+                             PDUSessionList->list.array[i];
 
-        if (!PDUSessionItem) {
+        if (!PDUSessionItem)
+        {
             ogs_error("No PDUSessionResourceAdmittedItem");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         transfer = &PDUSessionItem->handoverRequestAcknowledgeTransfer;
-        if (!transfer) {
+        if (!transfer)
+        {
             ogs_error("No handoverRequestAcknowledgeTransfer");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         if (PDUSessionItem->pDUSessionID ==
-                OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED) {
+            OGS_NAS_PDU_SESSION_IDENTITY_UNASSIGNED)
+        {
             ogs_error("PDU Session Identity is unassigned");
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
             return;
         }
 
         sess = amf_sess_find_by_psi(amf_ue, PDUSessionItem->pDUSessionID);
-        if (!sess) {
+        if (!sess)
+        {
             ogs_error("Cannot find PDU Session ID [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
-        if (!SESSION_CONTEXT_IN_SMF(sess)) {
+        if (!SESSION_CONTEXT_IN_SMF(sess))
+        {
             ogs_error("Session Context is not in SMF [%d]",
-                    (int)PDUSessionItem->pDUSessionID);
+                      (int)PDUSessionItem->pDUSessionID);
             ogs_assert(OGS_OK ==
-                ngap_send_error_indication2(amf_ue,
-                    NGAP_Cause_PR_radioNetwork,
-                    NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
+                       ngap_send_error_indication2(amf_ue,
+                                                   NGAP_Cause_PR_radioNetwork,
+                                                   NGAP_CauseRadioNetwork_unknown_PDU_session_ID));
             return;
         }
 
@@ -3086,17 +3361,17 @@ void ngap_handle_handover_request_ack(
         param.hoState = OpenAPI_ho_state_PREPARED;
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_REQ_ACK, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_REQ_ACK, &param));
 
         ogs_pkbuf_free(param.n2smbuf);
     }
 }
 
 void ngap_handle_handover_failure(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -3123,9 +3398,11 @@ void ngap_handle_handover_failure(
 
     ogs_debug("HandoverFailure");
 
-    for (i = 0; i < HandoverFailure->protocolIEs.list.count; i++) {
+    for (i = 0; i < HandoverFailure->protocolIEs.list.count; i++)
+    {
         ie = HandoverFailure->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_AMF_UE_NGAP_ID:
             AMF_UE_NGAP_ID = &ie->value.choice.AMF_UE_NGAP_ID;
             break;
@@ -3138,76 +3415,81 @@ void ngap_handle_handover_failure(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     target_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!target_ue) {
+    if (!target_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, NULL, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, NULL, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     source_ue = target_ue->source_ue;
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("Cannot find Source-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
     ogs_debug("    Cause[Group:%d Cause:%d]",
-            Cause->present, (int)Cause->choice.radioNetwork);
+              Cause->present, (int)Cause->choice.radioNetwork);
 
     ogs_assert(OGS_OK ==
-        ngap_send_handover_preparation_failure(source_ue, Cause));
+               ngap_send_handover_preparation_failure(source_ue, Cause));
 
     ogs_assert(OGS_OK ==
-        ngap_send_ran_ue_context_release_command(target_ue,
-            NGAP_Cause_PR_radioNetwork, NGAP_CauseRadioNetwork_ho_failure_in_target_5GC_ngran_node_or_target_system,
-            NGAP_UE_CTX_REL_NG_HANDOVER_FAILURE, 0));
+               ngap_send_ran_ue_context_release_command(target_ue,
+                                                        NGAP_Cause_PR_radioNetwork, NGAP_CauseRadioNetwork_ho_failure_in_target_5GC_ngran_node_or_target_system,
+                                                        NGAP_UE_CTX_REL_NG_HANDOVER_FAILURE, 0));
 }
 
 void ngap_handle_handover_cancel(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -3237,9 +3519,11 @@ void ngap_handle_handover_cancel(
 
     ogs_debug("HandoverCancel");
 
-    for (i = 0; i < HandoverCancel->protocolIEs.list.count; i++) {
+    for (i = 0; i < HandoverCancel->protocolIEs.list.count; i++)
+    {
         ie = HandoverCancel->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -3255,92 +3539,99 @@ void ngap_handle_handover_cancel(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     source_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     target_ue = source_ue->target_ue;
-    if (!target_ue) {
+    if (!target_ue)
+    {
         ogs_error("Cannot find Source-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
         return;
     }
     amf_ue = source_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
     ogs_debug("    Cause[Group:%d Cause:%d]",
-            Cause->present, (int)Cause->choice.radioNetwork);
+              Cause->present, (int)Cause->choice.radioNetwork);
 
-    ogs_list_for_each(&amf_ue->sess_list, sess) {
+    ogs_list_for_each(&amf_ue->sess_list, sess)
+    {
         memset(&param, 0, sizeof(param));
         param.hoState = OpenAPI_ho_state_CANCELLED;
         param.ngApCause.group = Cause->present;
         param.ngApCause.value = (int)Cause->choice.radioNetwork;
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_CANCEL, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_CANCEL, &param));
     }
 }
 
 void ngap_handle_uplink_ran_status_transfer(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -3370,9 +3661,11 @@ void ngap_handle_uplink_ran_status_transfer(
 
     ogs_debug("UplinkRANStatusTransfer");
 
-    for (i = 0; i < UplinkRANStatusTransfer->protocolIEs.list.count; i++) {
+    for (i = 0; i < UplinkRANStatusTransfer->protocolIEs.list.count; i++)
+    {
         ie = UplinkRANStatusTransfer->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -3389,72 +3682,77 @@ void ngap_handle_uplink_ran_status_transfer(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     source_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     target_ue = source_ue->target_ue;
-    if (!target_ue) {
+    if (!target_ue)
+    {
         ogs_error("Cannot find Source-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
         return;
     }
     amf_ue = source_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &source_ue->ran_ue_ngap_id, &source_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
 
     ogs_assert(OGS_OK ==
-        ngap_send_downlink_ran_status_transfer(
-            target_ue, RANStatusTransfer_TransparentContainer));
+               ngap_send_downlink_ran_status_transfer(
+                   target_ue, RANStatusTransfer_TransparentContainer));
 }
 
 void ngap_handle_handover_notification(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i;
@@ -3485,9 +3783,11 @@ void ngap_handle_handover_notification(
 
     ogs_debug("HandoverNotify");
 
-    for (i = 0; i < HandoverNotify->protocolIEs.list.count; i++) {
+    for (i = 0; i < HandoverNotify->protocolIEs.list.count; i++)
+    {
         ie = HandoverNotify->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -3503,77 +3803,84 @@ void ngap_handle_handover_notification(
     }
 
     ogs_debug("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!AMF_UE_NGAP_ID) {
+    if (!AMF_UE_NGAP_ID)
+    {
         ogs_error("No AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                (unsigned long *)&amf_ue_ngap_id) != 0) {
+                          (unsigned long *)&amf_ue_ngap_id) != 0)
+    {
         ogs_error("Invalid AMF_UE_NGAP_ID");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, (uint32_t *)RAN_UE_NGAP_ID, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     target_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
-    if (!target_ue) {
+    if (!target_ue)
+    {
         ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, (uint32_t *)RAN_UE_NGAP_ID, &amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     source_ue = target_ue->source_ue;
-    if (!source_ue) {
+    if (!source_ue)
+    {
         ogs_error("Cannot find Source-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_inconsistent_remote_UE_NGAP_ID));
         return;
     }
     amf_ue = target_ue->amf_ue;
-    if (!amf_ue) {
+    if (!amf_ue)
+    {
         ogs_error("Cannot find AMF-UE Context [%lld]",
-                (long long)amf_ue_ngap_id);
+                  (long long)amf_ue_ngap_id);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(
-                gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
-                NGAP_Cause_PR_radioNetwork,
-                NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
+                   ngap_send_error_indication(
+                       gnb, &target_ue->ran_ue_ngap_id, &target_ue->amf_ue_ngap_id,
+                       NGAP_Cause_PR_radioNetwork,
+                       NGAP_CauseRadioNetwork_unknown_local_UE_NGAP_ID));
         return;
     }
 
     amf_ue_associate_ran_ue(amf_ue, target_ue);
 
-    if (!UserLocationInformation) {
+    if (!UserLocationInformation)
+    {
         ogs_error("No UserLocationInformation");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &target_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, &target_ue->ran_ue_ngap_id, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     if (UserLocationInformation->present !=
-            NGAP_UserLocationInformation_PR_userLocationInformationNR) {
+        NGAP_UserLocationInformation_PR_userLocationInformationNR)
+    {
         ogs_error("Not implemented UserLocationInformation[%d]",
-                UserLocationInformation->present);
+                  UserLocationInformation->present);
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, &target_ue->ran_ue_ngap_id, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
+                   ngap_send_error_indication(gnb, &target_ue->ran_ue_ngap_id, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_unspecified));
         return;
     }
 
@@ -3581,20 +3888,20 @@ void ngap_handle_handover_notification(
         UserLocationInformation->choice.userLocationInformationNR;
     ogs_assert(UserLocationInformationNR);
     ogs_ngap_ASN_to_nr_cgi(
-            &UserLocationInformationNR->nR_CGI, &target_ue->saved.nr_cgi);
+        &UserLocationInformationNR->nR_CGI, &target_ue->saved.nr_cgi);
     ogs_ngap_ASN_to_5gs_tai(
-            &UserLocationInformationNR->tAI, &target_ue->saved.nr_tai);
+        &UserLocationInformationNR->tAI, &target_ue->saved.nr_tai);
 
     ogs_debug("    Source : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
+              source_ue->ran_ue_ngap_id, (long long)source_ue->amf_ue_ngap_id);
     ogs_debug("    Source : TAC[%d] CellID[0x%llx]",
-        source_ue->saved.nr_tai.tac.v,
-        (long long)source_ue->saved.nr_cgi.cell_id);
+              source_ue->saved.nr_tai.tac.v,
+              (long long)source_ue->saved.nr_cgi.cell_id);
     ogs_debug("    Target : RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld] ",
-        target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
+              target_ue->ran_ue_ngap_id, (long long)target_ue->amf_ue_ngap_id);
     ogs_debug("    Target : TAC[%d] CellID[0x%llx]",
-        target_ue->saved.nr_tai.tac.v,
-        (long long)target_ue->saved.nr_cgi.cell_id);
+              target_ue->saved.nr_tai.tac.v,
+              (long long)target_ue->saved.nr_cgi.cell_id);
 
     /* Copy Stream-No/TAI/ECGI from ran_ue */
     amf_ue->gnb_ostream_id = target_ue->gnb_ostream_id;
@@ -3602,26 +3909,27 @@ void ngap_handle_handover_notification(
     memcpy(&amf_ue->nr_cgi, &target_ue->saved.nr_cgi, sizeof(ogs_nr_cgi_t));
 
     ogs_assert(OGS_OK ==
-        ngap_send_ran_ue_context_release_command(source_ue,
-            NGAP_Cause_PR_radioNetwork,
-            NGAP_CauseRadioNetwork_successful_handover,
-            NGAP_UE_CTX_REL_NG_HANDOVER_COMPLETE,
-            ogs_app()->time.handover.duration));
+               ngap_send_ran_ue_context_release_command(source_ue,
+                                                        NGAP_Cause_PR_radioNetwork,
+                                                        NGAP_CauseRadioNetwork_successful_handover,
+                                                        NGAP_UE_CTX_REL_NG_HANDOVER_COMPLETE,
+                                                        ogs_app()->time.handover.duration));
 
-    ogs_list_for_each(&amf_ue->sess_list, sess) {
+    ogs_list_for_each(&amf_ue->sess_list, sess)
+    {
         memset(&param, 0, sizeof(param));
         param.hoState = OpenAPI_ho_state_COMPLETED;
 
         ogs_assert(true ==
-            amf_sess_sbi_discover_and_send(
-                OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
-                amf_nsmf_pdusession_build_update_sm_context,
-                sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_NOTIFY, &param));
+                   amf_sess_sbi_discover_and_send(
+                       OGS_SBI_SERVICE_TYPE_NSMF_PDUSESSION, NULL,
+                       amf_nsmf_pdusession_build_update_sm_context,
+                       sess, AMF_UPDATE_SM_CONTEXT_HANDOVER_NOTIFY, &param));
     }
 }
 
 void ngap_handle_ran_configuration_update(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i, j, k;
@@ -3651,9 +3959,11 @@ void ngap_handle_ran_configuration_update(
 
     ogs_debug("RANConfigurationUpdate");
 
-    for (i = 0; i < RANConfigurationUpdate->protocolIEs.list.count; i++) {
+    for (i = 0; i < RANConfigurationUpdate->protocolIEs.list.count; i++)
+    {
         ie = RANConfigurationUpdate->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_GlobalRANNodeID:
             GlobalRANNodeID = &ie->value.choice.GlobalRANNodeID;
             break;
@@ -3668,100 +3978,105 @@ void ngap_handle_ran_configuration_update(
         }
     }
 
-    if (GlobalRANNodeID) {
+    if (GlobalRANNodeID)
+    {
         globalGNB_ID = GlobalRANNodeID->choice.globalGNB_ID;
-        if (!globalGNB_ID) {
+        if (!globalGNB_ID)
+        {
             ogs_error("No globalGNB_ID");
             group = NGAP_Cause_PR_protocol;
             cause = NGAP_CauseProtocol_semantic_error;
             ogs_assert(OGS_OK ==
-                ngap_send_ran_configuration_update_failure(gnb, group, cause));
+                       ngap_send_ran_configuration_update_failure(gnb, group, cause));
             return;
         }
 
         ogs_ngap_GNB_ID_to_uint32(&globalGNB_ID->gNB_ID, &gnb_id);
         ogs_debug("    IP[%s] GNB_ID[0x%x]",
-                OGS_ADDR(gnb->sctp.addr, buf), gnb_id);
+                  OGS_ADDR(gnb->sctp.addr, buf), gnb_id);
 
         amf_gnb_set_gnb_id(gnb, gnb_id);
     }
 
-    if (SupportedTAList) {
+    if (SupportedTAList)
+    {
         /* Parse Supported TA */
         for (i = 0, gnb->num_of_supported_ta_list = 0;
-                i < SupportedTAList->list.count &&
-                gnb->num_of_supported_ta_list < OGS_MAX_NUM_OF_TAI;
-                    i++) {
+             i < SupportedTAList->list.count &&
+             gnb->num_of_supported_ta_list < OGS_MAX_NUM_OF_TAI;
+             i++)
+        {
             NGAP_SupportedTAItem_t *SupportedTAItem = NULL;
 
             SupportedTAItem = (NGAP_SupportedTAItem_t *)
-                    SupportedTAList->list.array[i];
-            if (!SupportedTAItem) {
+                                  SupportedTAList->list.array[i];
+            if (!SupportedTAItem)
+            {
                 ogs_error("No SupportedTAItem");
                 group = NGAP_Cause_PR_protocol;
                 cause = NGAP_CauseProtocol_semantic_error;
                 ogs_assert(OGS_OK ==
-                    ngap_send_ran_configuration_update_failure(
-                        gnb, group, cause));
+                           ngap_send_ran_configuration_update_failure(
+                               gnb, group, cause));
                 return;
             }
 
             ogs_asn_OCTET_STRING_to_uint24(&SupportedTAItem->tAC,
-                &gnb->supported_ta_list[i].tac);
+                                           &gnb->supported_ta_list[i].tac);
 
             ogs_debug("    TAC[%d]", gnb->supported_ta_list[i].tac.v);
 
             for (j = 0, gnb->supported_ta_list[i].num_of_bplmn_list = 0;
-                    j < SupportedTAItem->broadcastPLMNList.list.count &&
-                    gnb->supported_ta_list[i].num_of_bplmn_list <
-                        OGS_MAX_NUM_OF_BPLMN;
-                            j++) {
+                 j < SupportedTAItem->broadcastPLMNList.list.count &&
+                 gnb->supported_ta_list[i].num_of_bplmn_list <
+                     OGS_MAX_NUM_OF_BPLMN;
+                 j++)
+            {
 
                 NGAP_BroadcastPLMNItem_t *BroadcastPLMNItem = NULL;
                 NGAP_PLMNIdentity_t *pLMNIdentity = NULL;
 
                 BroadcastPLMNItem = (NGAP_BroadcastPLMNItem_t *)
-                        SupportedTAItem->broadcastPLMNList.list.array[j];
-                if (!BroadcastPLMNItem) {
+                                        SupportedTAItem->broadcastPLMNList.list.array[j];
+                if (!BroadcastPLMNItem)
+                {
                     ogs_error("No BroadcastPLMNItem");
                     group = NGAP_Cause_PR_protocol;
                     cause = NGAP_CauseProtocol_semantic_error;
                     ogs_assert(OGS_OK ==
-                        ngap_send_ran_configuration_update_failure(
-                            gnb, group, cause));
+                               ngap_send_ran_configuration_update_failure(
+                                   gnb, group, cause));
                     return;
                 }
 
-                pLMNIdentity = (NGAP_PLMNIdentity_t *)
-                        &BroadcastPLMNItem->pLMNIdentity;
+                pLMNIdentity = (NGAP_PLMNIdentity_t *)&BroadcastPLMNItem->pLMNIdentity;
                 ogs_assert(pLMNIdentity);
 
                 memcpy(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id,
-                        pLMNIdentity->buf, sizeof(ogs_plmn_id_t));
+                       pLMNIdentity->buf, sizeof(ogs_plmn_id_t));
                 ogs_debug("    PLMN_ID[MCC:%d MNC:%d]",
-                    ogs_plmn_id_mcc(&gnb->supported_ta_list[i].
-                        bplmn_list[j].plmn_id),
-                    ogs_plmn_id_mnc(&gnb->supported_ta_list[i].
-                        bplmn_list[j].plmn_id));
+                          ogs_plmn_id_mcc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id),
+                          ogs_plmn_id_mnc(&gnb->supported_ta_list[i].bplmn_list[j].plmn_id));
 
-                for (k = 0, gnb->supported_ta_list[i].
-                                bplmn_list[j].num_of_s_nssai = 0;
-                        k < BroadcastPLMNItem->tAISliceSupportList.list.count &&
-                        gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai <
-                            OGS_MAX_NUM_OF_SLICE;
-                                k++) {
+                for (k = 0, gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai = 0;
+                     k < BroadcastPLMNItem->tAISliceSupportList.list.count &&
+                     gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai <
+                         OGS_MAX_NUM_OF_SLICE;
+                     k++)
+                {
                     NGAP_SliceSupportItem_t *SliceSupportItem = NULL;
                     NGAP_S_NSSAI_t *s_NSSAI = NULL;
 
                     SliceSupportItem = (NGAP_SliceSupportItem_t *)
-                        BroadcastPLMNItem->tAISliceSupportList.list.array[k];
-                    if (!SliceSupportItem) {
+                                           BroadcastPLMNItem->tAISliceSupportList.list.array[k];
+                    if (!SliceSupportItem)
+                    {
                         ogs_error("No SliceSupportItem");
                         group = NGAP_Cause_PR_protocol;
                         cause = NGAP_CauseProtocol_semantic_error;
                         ogs_assert(OGS_OK ==
-                            ngap_send_ran_configuration_update_failure(
-                                gnb, group, cause));
+                                   ngap_send_ran_configuration_update_failure(
+                                       gnb, group, cause));
                         return;
                     }
 
@@ -3769,20 +4084,20 @@ void ngap_handle_ran_configuration_update(
                     ogs_assert(s_NSSAI);
 
                     ogs_asn_OCTET_STRING_to_uint8(&s_NSSAI->sST,
-                        &gnb->supported_ta_list[i].
-                            bplmn_list[j].s_nssai[k].sst);
-                    if (!s_NSSAI->sD) {
-                        gnb->supported_ta_list[i].bplmn_list[j].
-                            s_nssai[k].sd.v = OGS_S_NSSAI_NO_SD_VALUE;
-                    } else {
+                                                  &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst);
+                    if (!s_NSSAI->sD)
+                    {
+                        gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v = OGS_S_NSSAI_NO_SD_VALUE;
+                    }
+                    else
+                    {
                         ogs_asn_OCTET_STRING_to_uint24(s_NSSAI->sD,
-                        &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd);
+                                                       &gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd);
                     }
 
                     ogs_debug("    S_NSSAI[SST:%d SD:0x%x]",
-                        gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
-                        gnb->supported_ta_list[i].bplmn_list[j].
-                            s_nssai[k].sd.v);
+                              gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sst,
+                              gnb->supported_ta_list[i].bplmn_list[j].s_nssai[k].sd.v);
 
                     gnb->supported_ta_list[i].bplmn_list[j].num_of_s_nssai++;
                 }
@@ -3793,7 +4108,8 @@ void ngap_handle_ran_configuration_update(
             gnb->num_of_supported_ta_list++;
         }
 
-        if (gnb->num_of_supported_ta_list == 0) {
+        if (gnb->num_of_supported_ta_list == 0)
+        {
             ogs_warn("RANConfigurationUpdate failure:");
             ogs_warn("    No supported TA exist in request");
             group = NGAP_Cause_PR_protocol;
@@ -3801,31 +4117,33 @@ void ngap_handle_ran_configuration_update(
                 NGAP_CauseProtocol_message_not_compatible_with_receiver_state;
 
             ogs_assert(OGS_OK ==
-                ngap_send_ran_configuration_update_failure(gnb, group, cause));
+                       ngap_send_ran_configuration_update_failure(gnb, group, cause));
             return;
         }
 
-        if (!served_tai_is_found(gnb)) {
+        if (!served_tai_is_found(gnb))
+        {
             ogs_warn("RANConfigurationUpdate failure:");
             ogs_warn("    Cannot find Served TAI. "
-                        "Check 'amf.tai' configuration");
+                     "Check 'amf.tai' configuration");
             group = NGAP_Cause_PR_misc;
             cause = NGAP_CauseMisc_unknown_PLMN_or_SNPN;
 
             ogs_assert(OGS_OK ==
-                ngap_send_ran_configuration_update_failure(gnb, group, cause));
+                       ngap_send_ran_configuration_update_failure(gnb, group, cause));
             return;
         }
 
-        if (!s_nssai_is_found(gnb)) {
+        if (!s_nssai_is_found(gnb))
+        {
             ogs_warn("RANConfigurationUpdate failure:");
             ogs_warn("    Cannot find S_NSSAI. "
-                        "Check 'amf.plmn_support.s_nssai' configuration");
+                     "Check 'amf.plmn_support.s_nssai' configuration");
             group = NGAP_Cause_PR_radioNetwork;
             cause = NGAP_CauseRadioNetwork_slice_not_supported;
 
             ogs_assert(OGS_OK ==
-                ngap_send_ran_configuration_update_failure(gnb, group, cause));
+                       ngap_send_ran_configuration_update_failure(gnb, group, cause));
             return;
         }
     }
@@ -3834,15 +4152,14 @@ void ngap_handle_ran_configuration_update(
         ogs_debug("    PagingDRX[%ld]", *PagingDRX);
 
     ogs_assert(OGS_OK ==
-        ngap_send_ran_configuration_update_ack(gnb));
+               ngap_send_ran_configuration_update_ack(gnb));
 }
 
 void ngap_handle_ng_reset(
-        amf_gnb_t *gnb, ogs_ngap_message_t *message)
+    amf_gnb_t *gnb, ogs_ngap_message_t *message)
 {
     char buf[OGS_ADDRSTRLEN];
     int i, old_xact_count = 0, new_xact_count = 0;
-
 
     NGAP_InitiatingMessage_t *initiatingMessage = NULL;
     NGAP_NGReset_t *NGReset = NULL;
@@ -3865,9 +4182,11 @@ void ngap_handle_ng_reset(
 
     ogs_warn("NGReset");
 
-    for (i = 0; i < NGReset->protocolIEs.list.count; i++) {
+    for (i = 0; i < NGReset->protocolIEs.list.count; i++)
+    {
         ie = NGReset->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_Cause:
             Cause = &ie->value.choice.Cause;
             break;
@@ -3880,66 +4199,69 @@ void ngap_handle_ng_reset(
     }
 
     ogs_debug("    IP[%s] ENB_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+              OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (!Cause) {
+    if (!Cause)
+    {
         ogs_error("No Cause");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
     ogs_warn("    Cause[Group:%d Cause:%d]",
-            Cause->present, (int)Cause->choice.radioNetwork);
+             Cause->present, (int)Cause->choice.radioNetwork);
 
-    if (!ResetType) {
+    if (!ResetType)
+    {
         ogs_error("No ResetType");
         ogs_assert(OGS_OK ==
-            ngap_send_error_indication(gnb, NULL, NULL,
-                NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
+                   ngap_send_error_indication(gnb, NULL, NULL,
+                                              NGAP_Cause_PR_protocol, NGAP_CauseProtocol_semantic_error));
         return;
     }
 
-    switch (ResetType->present) {
+    switch (ResetType->present)
+    {
     case NGAP_ResetType_PR_nG_Interface:
         ogs_warn("    NGAP_ResetType_PR_nG_Interface");
 
         amf_sbi_send_deactivate_all_ue_in_gnb(
-                gnb, AMF_REMOVE_S1_CONTEXT_BY_RESET_ALL);
+            gnb, AMF_REMOVE_S1_CONTEXT_BY_RESET_ALL);
 
-    /*
-     * TS38.413
-     *
-     * 8.7.4.2.1 NG Reset initiated by the AMF
-     * At reception of the NG RESET message the NG-RAN node shall release all
-     * allocated resources on NG and Uu related to the UE association(s)
-     * indicated explicitly or implicitly in the NG RESET message and
-     * remove the indicated UE contexts including NGAP ID.
-     *
-     * After the NG-RAN node has released all assigned NG resources and
-     * the UE NGAP IDs for all indicated UE associations which can be used
-     * for new UE-associated logical NG-connections over the NG interface,
-     * the NG-RAN node shall respond with the NG RESET ACKNOWLEDGE message.
-     *
-     * The NG-RAN node does not need to wait for the release of radio resources
-     * to be completed before returning the NG RESET ACKNOWLEDGE message.
-     *
-     * 8.7.4.2.2 NG Reset initiated by the NG-RAN node
-     *
-     * At reception of the NG RESET message the AMF shall release
-     * all allocated resources on NG related to the UE association(s)
-     * indicated explicitly or implicitly in the NG RESET message and
-     * remove the NGAP ID for the indicated UE associations.
-     *
-     * After the AMF has released all assigned NG resources and
-     * the UE NGAP IDs for all indicated UE associations which can be used
-     * for new UE-associated logical NG-connections over the NG interface,
-     * the AMF shall respond with the NG RESET ACKNOWLEDGE message.
-     */
+        /*
+         * TS38.413
+         *
+         * 8.7.4.2.1 NG Reset initiated by the AMF
+         * At reception of the NG RESET message the NG-RAN node shall release all
+         * allocated resources on NG and Uu related to the UE association(s)
+         * indicated explicitly or implicitly in the NG RESET message and
+         * remove the indicated UE contexts including NGAP ID.
+         *
+         * After the NG-RAN node has released all assigned NG resources and
+         * the UE NGAP IDs for all indicated UE associations which can be used
+         * for new UE-associated logical NG-connections over the NG interface,
+         * the NG-RAN node shall respond with the NG RESET ACKNOWLEDGE message.
+         *
+         * The NG-RAN node does not need to wait for the release of radio resources
+         * to be completed before returning the NG RESET ACKNOWLEDGE message.
+         *
+         * 8.7.4.2.2 NG Reset initiated by the NG-RAN node
+         *
+         * At reception of the NG RESET message the AMF shall release
+         * all allocated resources on NG related to the UE association(s)
+         * indicated explicitly or implicitly in the NG RESET message and
+         * remove the NGAP ID for the indicated UE associations.
+         *
+         * After the AMF has released all assigned NG resources and
+         * the UE NGAP IDs for all indicated UE associations which can be used
+         * for new UE-associated logical NG-connections over the NG interface,
+         * the AMF shall respond with the NG RESET ACKNOWLEDGE message.
+         */
         if (ogs_list_count(&gnb->ran_ue_list) == 0)
             ogs_assert(OGS_OK ==
-                ngap_send_ng_reset_ack(gnb, NULL));
+                       ngap_send_ng_reset_ack(gnb, NULL));
 
         break;
 
@@ -3955,7 +4277,8 @@ void ngap_handle_ng_reset(
         gnb->ng_reset_ack = ogs_ngap_build_ng_reset_ack(partOfNG_Interface);
         ogs_expect_or_return(gnb->ng_reset_ack);
 
-        for (i = 0; i < partOfNG_Interface->list.count; i++) {
+        for (i = 0; i < partOfNG_Interface->list.count; i++)
+        {
             NGAP_UE_associatedLogicalNG_connectionItem_t *item = NULL;
             uint64_t amf_ue_ngap_id;
 
@@ -3963,38 +4286,46 @@ void ngap_handle_ng_reset(
             amf_ue_t *amf_ue = NULL;
 
             item = (NGAP_UE_associatedLogicalNG_connectionItem_t *)
-                        partOfNG_Interface->list.array[i];
-            if (!item) {
+                       partOfNG_Interface->list.array[i];
+            if (!item)
+            {
                 ogs_error("No ResetType");
                 continue;
             }
 
-            if (item->aMF_UE_NGAP_ID) {
+            if (item->aMF_UE_NGAP_ID)
+            {
                 if (asn_INTEGER2ulong(item->aMF_UE_NGAP_ID,
-                            (unsigned long *)&amf_ue_ngap_id) != 0) {
+                                      (unsigned long *)&amf_ue_ngap_id) != 0)
+                {
                     ogs_error("Invalid AMF_UE_NGAP_ID");
                     continue;
                 }
 
                 ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
 
-                if (!ran_ue) {
+                if (!ran_ue)
+                {
                     ogs_error("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                            (long long)amf_ue_ngap_id);
+                              (long long)amf_ue_ngap_id);
                     continue;
                 }
-
-            } else if (item->rAN_UE_NGAP_ID) {
+            }
+            else if (item->rAN_UE_NGAP_ID)
+            {
 
                 ran_ue = ran_ue_find_by_ran_ue_ngap_id(
-                            gnb, *item->rAN_UE_NGAP_ID);
+                    gnb, *item->rAN_UE_NGAP_ID);
 
-                if (!ran_ue) {
+                if (!ran_ue)
+                {
                     ogs_error("No RAN UE Context : RAN_UE_NGAP_ID[%d]",
-                            (int)*item->rAN_UE_NGAP_ID);
+                              (int)*item->rAN_UE_NGAP_ID);
                     continue;
                 }
-            } else {
+            }
+            else
+            {
                 ogs_error("No UE NGAP ID");
                 continue;
             }
@@ -4016,11 +4347,14 @@ void ngap_handle_ng_reset(
 
             new_xact_count = amf_sess_xact_count(amf_ue);
 
-            if (old_xact_count == new_xact_count) ran_ue_remove(ran_ue);
+            if (old_xact_count == new_xact_count)
+                ran_ue_remove(ran_ue);
         }
 
-        ogs_list_for_each(&gnb->ran_ue_list, iter) {
-            if (iter->part_of_ng_reset_requested == true) {
+        ogs_list_for_each(&gnb->ran_ue_list, iter)
+        {
+            if (iter->part_of_ng_reset_requested == true)
+            {
                 /* The GNB_UE context
                  * where PartOfNG_interface was requested
                  * still remains */
@@ -4033,7 +4367,7 @@ void ngap_handle_ng_reset(
          * REMOVED */
         ogs_assert(gnb->ng_reset_ack);
         ogs_expect(OGS_OK ==
-            ngap_send_to_gnb(gnb, gnb->ng_reset_ack, NGAP_NON_UE_SIGNALLING));
+                   ngap_send_to_gnb(gnb, gnb->ng_reset_ack, NGAP_NON_UE_SIGNALLING));
 
         /* Clear NG-Reset Ack Buffer */
         gnb->ng_reset_ack = NULL;
@@ -4071,9 +4405,11 @@ void ngap_handle_error_indication(amf_gnb_t *gnb, ogs_ngap_message_t *message)
 
     ogs_warn("ErrorIndication");
 
-    for (i = 0; i < ErrorIndication->protocolIEs.list.count; i++) {
+    for (i = 0; i < ErrorIndication->protocolIEs.list.count; i++)
+    {
         ie = ErrorIndication->protocolIEs.list.array[i];
-        switch (ie->id) {
+        switch (ie->id)
+        {
         case NGAP_ProtocolIE_ID_id_RAN_UE_NGAP_ID:
             RAN_UE_NGAP_ID = &ie->value.choice.RAN_UE_NGAP_ID;
             break;
@@ -4089,35 +4425,39 @@ void ngap_handle_error_indication(amf_gnb_t *gnb, ogs_ngap_message_t *message)
     }
 
     ogs_warn("    IP[%s] RAN_ID[%d]",
-            OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
+             OGS_ADDR(gnb->sctp.addr, buf), gnb->gnb_id);
 
-    if (AMF_UE_NGAP_ID) {
+    if (AMF_UE_NGAP_ID)
+    {
 
         if (asn_INTEGER2ulong(AMF_UE_NGAP_ID,
-                    (unsigned long *)&amf_ue_ngap_id) != 0) {
+                              (unsigned long *)&amf_ue_ngap_id) != 0)
+        {
             ogs_warn("Invalid AMF_UE_NGAP_ID");
         }
 
         ran_ue = ran_ue_find_by_amf_ue_ngap_id(amf_ue_ngap_id);
         if (!ran_ue)
             ogs_warn("No RAN UE Context : AMF_UE_NGAP_ID[%lld]",
-                    (long long)amf_ue_ngap_id);
+                     (long long)amf_ue_ngap_id);
         else
             ogs_warn("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-                    ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
-
-    } else if (RAN_UE_NGAP_ID) {
+                     ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+    }
+    else if (RAN_UE_NGAP_ID)
+    {
         ran_ue = ran_ue_find_by_ran_ue_ngap_id(gnb, *RAN_UE_NGAP_ID);
         if (!ran_ue)
             ogs_warn("No RAN UE Context : RAN_UE_NGAP_ID[%d]",
-                    (int)*RAN_UE_NGAP_ID);
+                     (int)*RAN_UE_NGAP_ID);
         else
             ogs_warn("    RAN_UE_NGAP_ID[%d] AMF_UE_NGAP_ID[%lld]",
-                    ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
+                     ran_ue->ran_ue_ngap_id, (long long)ran_ue->amf_ue_ngap_id);
     }
 
-    if (Cause) {
+    if (Cause)
+    {
         ogs_warn("    Cause[Group:%d Cause:%d]",
-                Cause->present, (int)Cause->choice.radioNetwork);
+                 Cause->present, (int)Cause->choice.radioNetwork);
     }
 }

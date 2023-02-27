@@ -299,42 +299,43 @@ bool udm_nudr_dr_handle_subscription_authentication(
                     recvmsg, "No nfInstanceId", udm_ue->suci));
             return false;
         }
+        
+        // Matan: prevent anything that could prevent a successful auth
+        // if (!AuthEvent->success) {
+        //     ogs_error("[%s] No success", udm_ue->suci);
+        //     ogs_assert(true ==
+        //         ogs_sbi_server_send_error(
+        //             stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+        //             recvmsg, "No success", udm_ue->suci));
+        //     return false;
+        // }
 
-        if (!AuthEvent->success) {
-            ogs_error("[%s] No success", udm_ue->suci);
-            ogs_assert(true ==
-                ogs_sbi_server_send_error(
-                    stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                    recvmsg, "No success", udm_ue->suci));
-            return false;
-        }
+        // if (!AuthEvent->time_stamp) {
+        //     ogs_error("[%s] No timeStamp", udm_ue->suci);
+        //     ogs_assert(true ==
+        //         ogs_sbi_server_send_error(
+        //             stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+        //             recvmsg, "No timeStamp", udm_ue->suci));
+        //     return false;
+        // }
 
-        if (!AuthEvent->time_stamp) {
-            ogs_error("[%s] No timeStamp", udm_ue->suci);
-            ogs_assert(true ==
-                ogs_sbi_server_send_error(
-                    stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                    recvmsg, "No timeStamp", udm_ue->suci));
-            return false;
-        }
+        // if (!AuthEvent->auth_type) {
+        //     ogs_error("[%s] No authType", udm_ue->suci);
+        //     ogs_assert(true ==
+        //         ogs_sbi_server_send_error(
+        //             stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+        //             recvmsg, "No authType", udm_ue->suci));
+        //     return false;
+        // }
 
-        if (!AuthEvent->auth_type) {
-            ogs_error("[%s] No authType", udm_ue->suci);
-            ogs_assert(true ==
-                ogs_sbi_server_send_error(
-                    stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                    recvmsg, "No authType", udm_ue->suci));
-            return false;
-        }
-
-        if (!AuthEvent->serving_network_name) {
-            ogs_error("[%s] No servingNetworkName", udm_ue->suci);
-            ogs_assert(true ==
-                ogs_sbi_server_send_error(
-                    stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
-                    recvmsg, "No servingNetworkName", udm_ue->suci));
-            return false;
-        }
+        // if (!AuthEvent->serving_network_name) {
+        //     ogs_error("[%s] No servingNetworkName", udm_ue->suci);
+        //     ogs_assert(true ==
+        //         ogs_sbi_server_send_error(
+        //             stream, OGS_SBI_HTTP_STATUS_BAD_REQUEST,
+        //             recvmsg, "No servingNetworkName", udm_ue->suci));
+        //     return false;
+        // }
 
         memset(&sendmsg, 0, sizeof(sendmsg));
 

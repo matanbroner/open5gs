@@ -444,7 +444,7 @@ smf:
     mtu: 1400
     ctf:
       enabled: auto
-    freeDiameter: @sysconfdir@/freeDiameter/smf.conf
+    freeDiameter: /home/dhs_epc/open5gs/build/configs/freeDiameter/smf.conf
 
 #
 # nrf:

@@ -249,7 +249,7 @@ logger:
 #    relative_capacity: 100
 #
 mme:
-    freeDiameter: @sysconfdir@/freeDiameter/mme.conf
+    freeDiameter: /home/dhs_epc/open5gs/build/configs/freeDiameter/mme.conf
     s1ap:
       - addr: 127.0.0.2
     gtpc:

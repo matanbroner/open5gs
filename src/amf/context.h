@@ -172,7 +172,13 @@ struct ran_ue_s {
     struct {
         ogs_5gs_tai_t   nr_tai;
         ogs_nr_cgi_t    nr_cgi;
+        // Matan
+        ogs_ip_t ip;
+        uint16_t port;
+        
     } saved;
+
+    OpenAPI_n3ga_location_t *n3gaLocation;
 
     /* NG Holding timer for removing this context */
     ogs_timer_t     *t_ng_holding;

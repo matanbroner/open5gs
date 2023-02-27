@@ -107,13 +107,17 @@ ogs_nas_5gmm_cause_t gmm_handle_registration_request(amf_ue_t *amf_ue,
         OGS_NAS_5GS_REGISTRATION_REQUEST_EPS_NAS_MESSAGE_CONTAINER_PRESENT| \
         OGS_NAS_5GS_REGISTRATION_REQUEST_NAS_MESSAGE_CONTAINER_PRESENT)
 
-    if (ngap_code == NGAP_ProcedureCode_id_InitialUEMessage &&
-        registration_request->presencemask &
-        ~OGS_REGISTRATION_CLEARTEXT_PRESENT) {
-        ogs_error("Non cleartext IEs is included [0x%llx]",
-                (long long)registration_request->presencemask);
-        return OGS_5GMM_CAUSE_SEMANTICALLY_INCORRECT_MESSAGE;
-    }
+
+    ogs_debug("OGS_REGISTRATION_CLEARTEXT_PRESENT [0x%llx]", (long long)OGS_REGISTRATION_CLEARTEXT_PRESENT);
+
+    // Matan: disable check for non-cleartext IE's
+    // if (ngap_code == NGAP_ProcedureCode_id_InitialUEMessage &&
+    //     registration_request->presencemask &
+    //     ~OGS_REGISTRATION_CLEARTEXT_PRESENT) {
+    //     ogs_error("Non cleartext IEs is included [0x%llx]",
+    //             (long long)registration_request->presencemask);
+    //     return OGS_5GMM_CAUSE_SEMANTICALLY_INCORRECT_MESSAGE;
+    // }
 
     if (!h.integrity_protected &&
         (registration_request->presencemask &
@@ -796,12 +800,13 @@ ogs_nas_5gmm_cause_t gmm_handle_security_mode_complete(amf_ue_t *amf_ue,
      * unprotected. The AMF shall use the complete initial NAS message
      * that is in the NAS container as the message to respond to.
      */
-    if ((security_mode_complete->presencemask &
-        OGS_NAS_5GS_SECURITY_MODE_COMPLETE_NAS_MESSAGE_CONTAINER_PRESENT)
-            == 0) {
-        ogs_error("No NAS Message Container in Security mode complete message");
-        return OGS_5GMM_CAUSE_MESSAGE_NOT_COMPATIBLE_WITH_THE_PROTOCOL_STATE;
-    }
+    // Matan: ignore no NAS container in SMC
+    // if ((security_mode_complete->presencemask &
+    //     OGS_NAS_5GS_SECURITY_MODE_COMPLETE_NAS_MESSAGE_CONTAINER_PRESENT)
+    //         == 0) {
+    //     ogs_error("No NAS Message Container in Security mode complete message");
+    //     return OGS_5GMM_CAUSE_MESSAGE_NOT_COMPATIBLE_WITH_THE_PROTOCOL_STATE;
+    // }
 
     if (security_mode_complete->presencemask &
         OGS_NAS_5GS_SECURITY_MODE_COMPLETE_IMEISV_PRESENT) {
@@ -1047,12 +1052,16 @@ int gmm_handle_ul_nas_transport(amf_ue_t *amf_ue,
                 }
             }
 
+	    // Matan: set default slice configurations if not found
             if (!selected_slice || !sess->dnn) {
                 ogs_warn("[%s] DNN Not Supported OR "
                             "Not Subscribed in the Slice", amf_ue->supi);
-                ogs_assert(OGS_OK ==
-                    nas_5gs_send_gmm_status(amf_ue, OGS_5GMM_CAUSE_DNN_NOT_SUPPORTED_OR_NOT_SUBSCRIBED_IN_THE_SLICE));
-                return OGS_ERROR;
+                // ogs_assert(OGS_OK ==
+                //    nas_5gs_send_gmm_status(amf_ue, OGS_5GMM_CAUSE_DNN_NOT_SUPPORTED_OR_NOT_SUBSCRIBED_IN_THE_SLICE));
+                // return OGS_ERROR;
+		
+		// Use first slice available
+		selected_slice = amf_ue->slice;
             }
 
             /* Store S-NSSAI */

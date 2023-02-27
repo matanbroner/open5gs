@@ -18,10 +18,9 @@
  */
 
 #include "context.h"
-
-#if HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
+#include <linux/mptcp.h>
+
 
 #if HAVE_NETINET_IP6_H
 #include <netinet/ip6.h>
@@ -82,10 +81,19 @@ static void _gtpv1_tun_recv_common_cb(
     int i;
 
     recvbuf = ogs_tun_read(fd, packet_pool);
+    
     if (!recvbuf) {
         ogs_warn("ogs_tun_read() failed");
         return;
     }
+    
+
+    // Matan: this is where packets enter into the UPF from the internet
+    ogs_info("ogs_tun_read() recvbuf");
+    for (i = 0; i < recvbuf->len; i++) {
+                printf("%02x ", recvbuf->data[i]);
+    }
+    printf("\n");
 
     if (has_eth) {
         ogs_pkbuf_t *replybuf = NULL;
@@ -316,12 +324,16 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
         ogs_log_hexdump(OGS_LOG_ERROR, pkbuf->data, pkbuf->len);
         goto cleanup;
     }
+
+    // Matan: GTP-U header removed by pulling buffer from packet
     ogs_assert(ogs_pkbuf_pull(pkbuf, len));
 
     if (gtp_h->type == OGS_GTPU_MSGTYPE_END_MARKER) {
         /* Nothing */
+        ogs_info("gtp_h->type == OGS_GTPU_MSGTYPE_END_MARKER");
 
     } else if (gtp_h->type == OGS_GTPU_MSGTYPE_ERR_IND) {
+        ogs_info("gtp_h->type == OGS_GTPU_MSGTYPE_ERR_IND");
         ogs_pfcp_far_t *far = NULL;
 
         far = ogs_pfcp_far_find_by_error_indication(pkbuf);
@@ -344,6 +356,8 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
         }
 
     } else if (gtp_h->type == OGS_GTPU_MSGTYPE_GPDU) {
+        // Matan: GTP-U packet type is GPDU == application data
+        ogs_info("gtp_h->type == OGS_GTPU_MSGTYPE_GPDU");
         uint16_t eth_type = 0;
         struct ip *ip_h = NULL;
         uint32_t *src_addr = NULL;
@@ -362,15 +376,18 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
         pfcp_object = ogs_pfcp_object_find_by_teid(teid);
         if (!pfcp_object) {
             /* TODO : Send Error Indication */
+            ogs_error("Cannot find PCFP object by TEID[0x%x]", teid);
             goto cleanup;
         }
 
         switch(pfcp_object->type) {
         case OGS_PFCP_OBJ_PDR_TYPE:
+            ogs_info("pfcp_object->type == OGS_PFCP_OBJ_PDR_TYPE");
             pdr = (ogs_pfcp_pdr_t *)pfcp_object;
             ogs_assert(pdr);
             break;
         case OGS_PFCP_OBJ_SESS_TYPE:
+            ogs_info("pfcp_object->type == OGS_PFCP_OBJ_SESS_TYPE");
             pfcp_sess = (ogs_pfcp_sess_t *)pfcp_object;
             ogs_assert(pfcp_sess);
 
@@ -408,6 +425,8 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
             ogs_assert_if_reached();
         }
 
+        ogs_info("found pdr->id = %d", pdr->id);
+
         ogs_assert(pdr);
         ogs_assert(pdr->sess);
         ogs_assert(pdr->sess->obj.type == OGS_PFCP_OBJ_SESS_TYPE);
@@ -419,6 +438,7 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
         ogs_assert(far);
 
         if (ip_h->ip_v == 4 && sess->ipv4) {
+            ogs_info("ip_h->ip_v == 4 && sess->ipv4");
             src_addr = &ip_h->ip_src.s_addr;
             ogs_assert(src_addr);
 
@@ -448,6 +468,7 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
             eth_type = ETHERTYPE_IP;
 
         } else if (ip_h->ip_v == 6 && sess->ipv6) {
+            ogs_info("ip_h->ip_v == 6 && sess->ipv6");
             struct ip6_hdr *ip6_h = (struct ip6_hdr *)pkbuf->data;
             ogs_assert(ip6_h);
             src_addr = (uint32_t *)ip6_h->ip6_src.s6_addr;
@@ -538,7 +559,10 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
 
         if (far->dst_if == OGS_PFCP_INTERFACE_CORE) {
 
+            ogs_info("far->dst_if == OGS_PFCP_INTERFACE_CORE");
+
             if (!subnet) {
+                ogs_info("!subnet");
 #if 0 /* It's redundant log message */
                 ogs_error("[DROP] Cannot find subnet V:%d, IPv4:%p, IPv6:%p",
                         ip_h->ip_v, sess->ipv4, sess->ipv6);
@@ -555,6 +579,7 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
                 upf_sess_urr_acc_add(sess, pdr->urr[i], pkbuf->len, true);
 
             if (dev->is_tap) {
+                ogs_info("dev->is_tap == true");
                 ogs_assert(eth_type);
                 eth_type = htobe16(eth_type);
                 ogs_pkbuf_push(pkbuf, sizeof(eth_type));
@@ -564,12 +589,28 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
                 ogs_pkbuf_push(pkbuf, ETHER_ADDR_LEN);
                 memcpy(pkbuf->data, dev->mac_addr, ETHER_ADDR_LEN);
             }
+            
+
+            // Matan: packets LEAVE the core here
+            // print packet data with data and len attrs
+            // data is an array of chars and len is an int
+            for (i = 0; i < pkbuf->len; i++) {
+                printf("%02x ", pkbuf->data[i]);
+            }
+            printf("\n");
+            struct iphdr *ip_header = (struct iphdr*)pkbuf->data;
+            if (ip_header->protocol == IPPROTO_TCP) {
+                ogs_info("IPPROTO_TCP");
+            }
 
             /* TODO: if destined to another UE, hairpin back out. */
             if (ogs_tun_write(dev->fd, pkbuf) != OGS_OK)
                 ogs_warn("ogs_tun_write() failed");
+            else
+                ogs_info("ogs_tun_write() succeeded");
 
         } else if (far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {
+            ogs_info("far->dst_if == OGS_PFCP_INTERFACE_ACCESS");
             ogs_assert(true == ogs_pfcp_up_handle_pdr(
                         pdr, gtp_h->type, pkbuf, &report));
 
@@ -585,6 +626,8 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
             }
 
         } else if (far->dst_if == OGS_PFCP_INTERFACE_CP_FUNCTION) {
+
+            ogs_info("far->dst_if == OGS_PFCP_INTERFACE_CP_FUNCTION");
 
             if (!far->gnode) {
                 ogs_error("No Outer Header Creation in FAR");

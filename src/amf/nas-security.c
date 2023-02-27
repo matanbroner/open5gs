@@ -166,11 +166,12 @@ int nas_5gs_security_decode(amf_ue_t *amf_ue,
             h->message_authentication_code = original_mac;
 
             memcpy(&mac32, mac, NAS_SECURITY_MAC_SIZE);
-            if (h->message_authentication_code != mac32) {
-                ogs_warn("NAS MAC verification failed(0x%x != 0x%x)",
-                    be32toh(h->message_authentication_code), be32toh(mac32));
-                amf_ue->mac_failed = 1;
-            }
+            // Matan: ignore MAC verification fail
+            // if (h->message_authentication_code != mac32) {
+            //     ogs_warn("NAS MAC verification failed(0x%x != 0x%x)",
+            //         be32toh(h->message_authentication_code), be32toh(mac32));
+            //     amf_ue->mac_failed = 1;
+            // }
         }
 
         /* NAS EMM Header or ESM Header */

@@ -57,6 +57,7 @@ static void pfcp_node_fsm_fini(ogs_pfcp_node_t *node)
 
 static void pfcp_recv_cb(short when, ogs_socket_t fd, void *data)
 {
+    // ogs_info("PFCP Recv");
     int rv;
 
     ssize_t size;
